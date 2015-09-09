@@ -8,7 +8,7 @@
 	<!-- Bootstrap CSS -->
 	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 	{{ HTML::style('asset/styles/responsiveslides.css') }}
-	<!-- Latest compiled and minified JS -->
+	<!-- Latest compiled and minified JS -->	
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="http://lipis.github.io/bootstrap-sweetalert/lib/sweet-alert.css">
@@ -75,7 +75,7 @@
 					</nav>
 					<nav class="navbar navbar-default visible-xs visible-sm" role="navigation">
 						<!-- Brand and toggle get grouped for better mobile display -->
-						<div style='height:100px;width:100%;background:url({{ URL::to("images/background/texture2.png") }});padding-left:20px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
+						<div style='height:100px;width:100%;background:url({{ URL::to("images/background/texture2.png") }}) black;padding-left:20px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 						-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 						box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
 						<a href='{{ URL::to("/")}}'><img class='img-responsive' src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
