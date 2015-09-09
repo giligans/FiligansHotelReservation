@@ -114,7 +114,7 @@
 			</head>
 			@yield('initializeData')
 			<body style='background-image: url({{ URL::to("images/background/texture1.png")}} )' ng-controller='@yield("controller")'>
-				<div class="container" style='background-image: url("{{ URL::to("images/background/texture3.png")}} ");margin-top:-20px;padding:30px;
+				<div class="container" style='background-image: url("{{ URL::to("images/background/texture3.png")}} ") black;margin-top:-20px;padding:30px;
 				-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 				-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 				box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
