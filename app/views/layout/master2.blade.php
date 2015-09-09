@@ -56,7 +56,7 @@
 						<div class="row">
 							<nav class="navbar navbar-default hidden-xs hidden-sm" role="navigation">
 								<div class="container">
-									<div style='height:100px;width:300px;background:url({{ URL::to("images/background/texture2.jpg") }});position:absolute;top:-35px;padding:15px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
+									<div style='height:100px;width:300px;background:url({{ URL::to("images/background/texture2.jpg") }}) black;position:absolute;top:-35px;padding:15px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 									-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 									box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
 									<a href='{{ URL::to("/")}}'><img src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
