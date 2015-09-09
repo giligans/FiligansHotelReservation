@@ -1,0 +1,280 @@
+@extends('layout.master2')
+@section('controller')
+bookingController
+@stop
+@section('styles')
+<style type="text/css">
+	
+	.stepwizard-step p {
+		margin-top: 10px;
+	}
+	.stepwizard-row {
+		display: table-row;
+	}
+	.stepwizard {
+		display: table;
+		width: 100%;
+		position: relative;
+	}
+	.stepwizard-step button[disabled] {
+		opacity: 1 !important;
+		filter: alpha(opacity=100) !important;
+	}
+	.stepwizard-row:before {
+		top: 14px;
+		bottom: 0;
+		position: absolute;
+		content: " ";
+		width: 100%;
+		height: 1px;
+		background-color: #ccc;
+		z-order: 0;
+	}
+	.stepwizard-step {
+		display: table-cell;
+		text-align: center;
+		position: relative;
+	}
+	.btn-circle {
+		width: 30px;
+		height: 30px;
+		text-align: center;
+		padding: 6px 0;
+		font-size: 12px;
+		line-height: 1.428571429;
+		border-radius: 15px;
+	}
+</style>
+<style type="text/css">
+	/**** LAYOUT ****/
+	.list-inline>li {
+		padding: 0 10px 0 0;
+	}
+	.container-pad {
+		padding: 30px 15px;
+	}
+	/**** MODULE ****/
+	.bgc-fff {
+		background-color: #fff!important;
+	}
+	.box-shad {
+		-webkit-box-shadow: 1px 1px 0 rgba(0,0,0,.2);
+		box-shadow: 1px 1px 0 rgba(0,0,0,.2);
+	}
+	.brdr {
+		border: 1px solid #ededed;
+	}
+	/* Font changes */
+	.fnt-smaller {
+		font-size: .9em;
+	}
+	.fnt-lighter {
+		color: #bbb;
+	}
+	/* Padding - Margins */
+	.pad-10 {
+		padding: 10px!important;
+	}
+	.mrg-0 {
+		margin: 0!important;
+	}
+	.btm-mrg-10 {
+		margin-bottom: 10px!important;
+	}
+	.btm-mrg-20 {
+		margin-bottom: 20px!important;
+	}
+	/* Color  */
+	.clr-535353 {
+		color: #535353;
+	}
+	/**** MEDIA QUERIES ****/
+	@media only screen and (max-width: 991px) {
+		#property-listings .property-listing {
+			padding: 5px!important;
+		}
+		#property-listings .property-listing a {
+			margin: 0;
+		}
+		#property-listings .property-listing .media-body {
+			padding: 10px;
+		}
+	}
+	@media only screen and (min-width: 992px) {
+		#property-listings .property-listing img {
+			max-width: 180px;
+		}
+	}
+</style>
+@stop
+@section('content')
+<div class="row">
+	<div class="stepwizard">
+		<div class="stepwizard-row">
+			<div class="stepwizard-step">
+				<button type="button" class="btn btn-default btn-circle">1</button>
+				<p>Checking availability</p>
+			</div>
+			<div class="stepwizard-step">
+				<button type="button" class="btn btn-primary btn-circle">2</button>
+				<p>Choosing rooms</p>
+			</div>
+			<div class="stepwizard-step">
+				<button type="button" class="btn btn-default btn-circle" disabled="disabled">3</button>
+				<p>Customer Information</p>
+			</div>
+			<div class="stepwizard-step">
+				<button type="button" class="btn btn-default btn-circle" disabled="disabled">4</button>
+				<p>Payment</p>
+			</div>
+			<div class="stepwizard-step">
+				<button type="button" class="btn btn-default btn-circle" disabled="disabled">5</button>
+				<p>DONE</p>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row" style='margin-top:30px'>
+	<div style='max-width:960px;margin:0 auto'>
+		<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+			<center>
+			<h2 style='font-family:"Oswald";float:right'>Pick a room</h2>
+			<div class="clearfix"></div>
+			<small style='float:right'>This are the available rooms from date</small>
+			<div class="clearfix"></div>
+			<small style='float:right'> <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.checkin'))); ?> </span> to <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.display_checkout'))); ?> </span><br> at 12:00 NN</small>
+			</center>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style='border-left:1px solid #d8d8d8;margin-top:20px'>
+			<form method='POST' action='{{ URL::to("booking/step2") }}'>
+				<input type='hidden' name='checkin' value="3" >
+				<input type='hidden' name='checkout' value="3" >
+				<div class="" id="property-listings">
+					<div class="col-sm-12">
+						<?php
+						$index = 0;
+						?>
+						@foreach($room as $r)
+						<?php
+						$index++;
+						$room_qty = 0;
+						$room_id =0;
+						foreach($r->roomQty as $r_qty){
+							if($r_qty->roomReserved=='[]'){
+								$room_qty++;
+								$room_id = $r_qty->id;
+							}
+						}
+						
+						?>
+						<div class="brdr bgc-fff pad-10 box-shad btm-mrg-20 property-listing">
+							<div class="media">
+								<div class="pull-left">
+									<a class="" href="#" target="_parent">
+									<img alt="image" class="img-responsive" src="{{ URL::to('image/medium/'.$r->roomImages[0]->photo->filename) }} "></a>
+								</a>
+								<div style='width:150px;padding:10px;'>
+									<!-- SPINNER HERE -->
+									<number-spinner quantity="<?php
+									if(isset(Session::get('reservation')['reservation_room'])){
+										$array = array_where(Session::get('reservation')['reservation_room'], function($key, $value) use($r){
+											if($value['room_details']['id']== $r->id){
+												return true;
+											}
+										});
+									if(!empty($array))
+									{
+									echo  Session::get('reservation')['reservation_room'][key($array)]['quantity'];
+									}else{
+									echo '0';
+									}
+									}else{
+									echo '0';
+									}
+									?>"
+									room = "{{ $r->id }}"
+									index="{{ $r->id }}" maxquantity='{{ $room_qty }}'>
+									</number-spinner>
+									@if($room_qty<1)
+									<div class="alert alert-danger" style='margin:5px;padding:5px'>
+										
+										Not available
+									</div>
+									@else
+									<div class="alert alert-success" style='margin:5px;padding:5px'>
+										{{ $room_qty }} room(s) available!
+									</div>
+									@endif
+								</div>
+							</div>
+							<div class="clearfix visible-sm"></div>
+							<div class="media-body fnt-smaller">
+								<a href="#" target="_parent"></a>
+								<h4 class="media-heading">
+								<a href="#" target="_parent">{{ $r->name }}  <small class="pull-right"><span class="label label-danger">P  {{{ $r->price }}} per night </span></small></a></h4>
+								<ul class="list-inline mrg-0 btm-mrg-10 clr-535353">
+								</li>{{ $r->max_adults}} Adult(s)</li>
+								<li style="list-style: none">|</li>
+								<li>{{ $r->max_children}} Children</li>
+								<li style="list-style: none">|</li>
+								<li>{{ $r->beds }} Beds</li>
+							</ul>
+							<p class="hidden-xs"> {{ $r->short_desc }}
+							...</p><span class="fnt-smaller fnt-lighter fnt-arial">Courtesy of HS Fox & Roach-Chestnut Hill
+							Evergreen</span>
+						</div>
+					</div>
+					</div><!-- End Listing-->
+					@endforeach
+					</div><!-- End container -->
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<button type="submit" class="btn btn-large btn-block btn-primary">Proceed</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+@stop
+@section('scripts')
+<script type="text/javascript">
+	'use strict';
+	angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interpolateProvider){
+		$interpolateProvider.startSymbol('[[');
+		$interpolateProvider.endSymbol(']]')
+	}).controller('bookingController', ['$scope', function($scope){
+		//$scope.quantity = 2;
+	}]).directive('numberSpinner', function(){
+		return {
+			scope: {
+				quantity :'@',
+				room :'@',
+				index : '@',
+				maxquantity : '@'
+				
+			},
+			controller: function($scope, $element, $attrs, $transclude) {
+				if($scope.quantity==''){
+					$scope.quantity=0;
+				}
+				console.log($scope.roomId)
+				$scope.addRoom = function(){
+					if($scope.maxquantity>$scope.quantity)
+						$scope.quantity++;
+				}
+				$scope.minusRoom = function(){
+					if($scope.quantity>0){
+						$scope.quantity--;
+					}
+				}
+			},
+			// require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+			restrict: 'AE', // E = Element, A = Attribute, C = Class, M = Comment
+			template: ' <div class="input-group number-spinner"><span class="input-group-btn"><button class="btn btn-default" type="button" data-dir="dwn" ng-click="minusRoom()"><span class="glyphicon glyphicon-minus"></span></button></span><input type="text" class="form-control text-center" ng-model="quantity" name="rooms[ [[index]] ][quantity]"> <input type="hidden" name="rooms[ [[index]] ][room_id]" ] ng-value="room"><span class="input-group-btn"><button class="btn btn-default" type="button" data-dir="up" ng-click="addRoom()"><span class="glyphicon glyphicon-plus"></span></button></span></div>',
+			replace: true,
+			link: function($scope, iElm, iAttrs, controller) {
+			}
+		};
+	});
+</script>
+@stop

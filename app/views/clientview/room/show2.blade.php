@@ -1,0 +1,88 @@
+@extends('layout.master')
+@section('controller')
+roomController
+@stop
+@section('styles')
+{{ HTML::style('asset/styles/datepicker.css') }}
+@stop
+@section('content')
+<div class="modal fade" id="availability">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 class="modal-title">Check the room availability for room type:<span> [[ roomAvailability.name ]]</span></h3>
+			</div>
+			<div class="modal-body">
+				<div class="input-daterange input-group" id="datepicker" ng-hide='loading'>
+					
+					<input type="text" class="input-sm form-control" name="start" placeholder='Check In' ng-model='room.checkin'/>
+					<span class="input-group-addon" style='margin-top:10px;'>to</span>
+					
+					<input type="text" class="input-sm form-control" name="end" placeholder='Check Out' ng-model='room.checkout'/>
+				</div>
+				<div class="alert alert-warning" style='margin-top:10px;margin-bottom:0px' ng-hide='loading'>
+				    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				    You are about to stay for about <span class="label label-primary" ng-bind='nights'>1</span>  night(s) on <label class="label label-primary" ng-bind='displayInfo.checkin'>January 2, 2014</label> and will be checkout on <label class="label label-primary" ng-bind='displayInfo.checkout'>January 3</label> at 12 noon.
+				</div>
+				<div class="alert" ng-class='{"alert-success":available!=false, "alert-danger":available==false }'style='margin:10px;' ng-show='available!=null'>
+					
+					<strong>Available!</strong> There are <span ng-bind='available'></span> rooms available. <label> <a href=''>Proceed to Reservation</a></label>?
+				</div>
+				<center ng-show='loading'>
+					<img src='{{ URL::to("images/loader.gif") }}'>
+					<center>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" ng-click='triggerCheckAvailability()' ng-disabled='loading'>		<span class="glyphicon glyphicon glyphicon-calendar" style='color:gold'></span> Check Availability</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<div class="row" style='padding:10px;'>
+			<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+				<div class="panel panel-primary">
+					<div class="panel-body">
+						<img src="{{ URL::to('image/full_image/'.$room->roomImages[0]->photo->filename) }}" class='img-responsive img-thumbnail'>
+					</div>
+				</div>
+				<div style='padding:10px'>
+					{{ $room->full_desc }}
+					{{ $room->full_desc }}
+					{{ $room->full_desc }}
+					{{ $room->full_desc }}
+					{{ $room->full_desc }}
+					{{ $room->full_desc }}
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+				<div class="panel panel-primary" style='padding-bottom:0px;'>
+					<div class="panel-heading" style='height:45px;'>
+						<h3 class="panel-title">Room Info <button type="button" class="btn btn-danger pull-right" style='margin-top:-5px;' ng-click='checkAvailability({{ $room }})'>		<span class="glyphicon glyphicon glyphicon-calendar" style='color:gold'></span> Check availability</button></h3>
+					</div>
+					<div class="panel-body" style='padding:0;margin:0'>
+						<ul class="list-group" style='margin:0'>
+							<li class="list-group-item">Room Type: <strong> {{{ $room->name }}} </strong></li>
+							<li class="list-group-item">Price: <strong> {{{ $room->price }}} </strong> </li>
+							<li class="list-group-item">No. of bedrooms: {{{ $room->beds }}}</li>
+							<li class="list-group-item" style='background-color:#EDEDED'><label>Short Description</label>: {{{ $room->short_desc	}}}</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		@stop
+		@section('scripts')
+		{{ HTML::script('asset/scripts/client/room.js') }}
+		{{ HTML::script('asset/scripts/moment.js') }}
+		{{ HTML::script('asset/scripts/angular-moment.min.js') }}
+		{{ HTML::script('asset/scripts/bootstrap-datepicker.js')}}
+		<script type="text/javascript">
+			$('.input-daterange').datepicker({
+				format: 'mm/dd/yyyy',
+						//startDate: '-3d'
+					})
+		</script>
+		@stop

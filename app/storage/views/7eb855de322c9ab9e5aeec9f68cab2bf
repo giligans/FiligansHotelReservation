@@ -1,0 +1,21 @@
+<?php $__env->startSection('styles'); ?>
+<?php echo HTML::style('asset/styles/datepicker.css'); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<div>s</div>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
+
+<?php echo HTML::script('asset/scripts/bootstrap-datepicker.js'); ?>
+
+
+
+
+<script type="text/javascript">
+	$('#date1').datepicker({
+    
+    });
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layout.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

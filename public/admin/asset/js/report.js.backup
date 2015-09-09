@@ -1,0 +1,47 @@
+'use strict';
+angular.module('adminApp', ['ui.bootstrap','chart.js'], function ($interpolateProvider){
+    $interpolateProvider.startSymbol('[[');
+    $interpolateProvider.endSymbol(']]');
+}).factory('reportFactory', ['$http', function($http){
+    return {
+        getBookingData : function()
+        {
+            return $http.get('/adminsite/reservation/list/ajax');
+        }
+    };
+}]).controller('reportController', ['$scope','reportFactory','$timeout', function($scope, reportFactory, $timeout){
+
+   $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+   $scope.series = ['Series A', 'Series B', 'Series C', 'Series D'];
+
+   $scope.data = [
+   [65, 59, 80, 81, 56, 55, 40],
+   [28, 48, 40, 19, 86, 27, 90]
+   ];
+
+
+
+   $scope.chartdata  = [];
+   var rows = [];
+   var count_r = [];
+   var count_r2 = [];
+   //reservationList();
+
+   function reservationList()
+   {
+    reportFactory.getBookingData().success(function(data)
+    {
+
+
+        if(data!=0){
+            $timeout(function()
+            {
+                $hideloading=true;
+            },1000)
+
+        }
+      //console.log(count_r);
+    }).error();
+}
+
+}])

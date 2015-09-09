@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="" ng-app='hotelApp'>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Title Page</title>
+	<!-- Bootstrap CSS -->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+	<style type="text/css">
+		h1,h2,h3,h4,h5,h6{
+			font-family: 'Open Sans';
+		}
+		.container {
+			width: 940px;
+		}
+		.cool-h2{
+			color:#A6A6A6;
+			font-size:40px;
+			letter-spacing: 2px;
+			text-transform:uppercase;
+		}
+		.cool-h2 span{
+			color : #333;
+		}
+		.testdate > .well{
+			background-color:transparent;
+			border:0px;
+			
+		}
+		datepicker > .btn{
+			padding:0px;
+			margin:0px	;
+		}
+		.rooms  img{
+			-webkit-box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+			-moz-box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+			box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+		}
+	}
+	.subtext{
+		color: #d8d8d8;
+	}
+	.navbar-brand span{
+		color:green;
+	}
+</style>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+			<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+			<![endif]-->
+		</head>
+		<body ng-controller='homeCtrl'>
+			<nav class="navbar navbar-default" role="navigation">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="#">Giligans <span>HOTEL</span></a>
+					</div>
+					<!-- Collect the nav links, forms, and other content for toggling -->
+					<div class="collapse navbar-collapse navbar-ex1-collapse">
+						<ul class="nav navbar-nav navbar-right">
+							<li><a href="#">HOME</a></li>
+							<li><a href="#">ROOMS</a></li>
+							<li><a href="#">FACILITIES</a></li>
+							<li><a href="#">GALLERY</a></li>
+							<li><a href="#">MAP</a></li>
+							<li><button type="button" class="btn btn-success" style='margin-top:10px;'>BOOK NOW</button></li>
+						</ul>
+					</div><!-- /.navbar-collapse -->
+				</div>
+			</nav>
+			<div class="container">
+				<div class="row" style='max-height:330px;'>
+					<img src="{{ URL::to('images/hotel.jpg') }}" class="img-responsive" style='width:940px;height:330px;
+					-webkit-box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+					-moz-box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+					box-shadow: -2px 5px 18px 1px rgba(0,0,0,0.75);
+					'>
+				</div>
+				<div class="row" style='margin-top:10px'>
+					<h2 class='cool-h2'>start <span>Booking your room</span><H2>
+						<h2 class='cool-h2' style='margin-top:-20px'>select your dates and options bel</h2>
+						<hr style='border-top:1px solid rgb(114, 163, 114)'>
+					</div>
+					<div class="row rooms" style='margin-bottom:10px;'>
+						<div class="col-sm-6 col-xs-12 col-md-3">
+							<div class="row">
+								<img src="{{ URL::to('images/room/room1.jpg') }}" class='img-responsive img-thumbnail' style='height:140px;'>
+							</div>
+							<div class="row" style='margin:0px; margin-top:10px;'>
+								<button type="button" class="btn btn-large btn-block btn-primary">BOOK NOW</button>
+							</div>
+						</div>
+						<div class="col-md-3 col-xs-12 col-sm-6" style='padding:10px;'>
+							<div style="display:inline-block; min-height:290px;" class='testdate' >
+								<div class="row">
+									<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+										<label>Arrival Date</label>
+									</div>
+									<div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+										<input type="text" name="" id="input" class="form-control" value="" required="required" pattern="" title="" ng-value=' dt | date:fullDate'>
+									</div>
+									
+								</div>
+								<div class="row">
+									<datepicker ng-model="dt" min-date="minDate" show-weeks="false" class=""></datepicker>
+								</div>
+							</div>
+							<!-- <div class='row'>
+										<img src="{{ URL::to('images/room/room2.jpg') }}" class='img-responsive img-thumbnail' style='height:140px;'>
+							</div>
+							<div class="row" style='margin:0px;margin-top:10px;'>
+										<button type="button" class="btn btn-large btn-block btn-primary">BOOK NOW</button>
+									</div> -->
+								</div>
+						<!-- <div class="col-md-3 col-xs-12 col-sm-6">
+									<img src="{{ URL::to('images/room/room3.jpg') }}" class='img-responsive img-thumbnail' style='height:140px;'>
+									<div class="<div class="form-group">
+												<div class="col-sm-10 col-offset-2">
+															<input type="reset" value="Reset" class="btn btn-default">
+												</div>
+									</div>ype="button" class="btn btn-large btn-block btn-primary">BOOK NOW</button>
+							</div>
+						</div> -->
+						<div class="col-md-3 col-xs-12 col-sm-6" style='padding:10px;'>
+							<div style="display:inline-block; min-height:290px;" class='testdate' >
+								<div class="row">
+									<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+										<label>Departure Date</label>
+									</div>
+									<div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+										<input type="text" name="" id="input" class="form-control" value="" required="required" pattern="" title="" ng-value=' dt | date:fullDate'>
+									</div>
+									
+								</div>
+								<div class="row">
+									<datepicker ng-model="dt" min-date="minDate" show-weeks="false" class="" style='padding:0px;'></datepicker>
+								</div>
+							</div>
+						<!-- <div class='row'>
+									<img src="{{ URL::to('images/room/room2.jpg') }}" class='img-responsive img-thumbnail' style='height:140px;'>
+						</div>
+						<div class="row" style='margin:0px;margin-top:10px;'>
+									<button type="button" class="btn btn-large btn-block btn-primary">BOOK NOW</button>
+								</div> -->
+							</div>
+							<div class="col-md-3 col-xs-12	col-sm-6">
+								<img src="{{ URL::to('images/room/room4.jpeg') }}" class='img-responsive img-thumbnail' style='height:140px;'>
+								<div class="row" style='margin-right:0px;margin-top:10px;'>
+									<button type="button" class="btn btn-large btn-block btn-primary">BOOK NOW</button>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<pre>Selected date is: <em>[[ dt | date:'fullDate' ]]</em></pre>
+							<h4>Inline</h4>
+							<div style="display:inline-block; min-height:290px;" class='testdate'>
+								<datepicker ng-model="dt" min-date="minDate" show-weeks="false" class=""></datepicker>
+							</div>
+							<hr />
+						</div>
+					</div>
+					<!-- jQuery -->
+					<script src="//code.jquery.com/jquery.js"></script>
+					<!-- Bootstrap JavaScript -->
+					<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+					<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js'></script>
+					{{ HTML::script('asset/scripts/ui-bootstrap-tpls-0.12.0.min.js') }}
+					<script type="text/javascript">
+						angular.module('hotelApp', ['ui.bootstrap'], function($interpolateProvider){
+							$interpolateProvider.startSymbol('[[');
+							$interpolateProvider.endSymbol(']]');
+						})
+						.controller('homeCtrl', ['$scope', function($scope){
+						}])
+					</script>
+				</body>
+				</html>
