@@ -10,8 +10,6 @@ class RoomController extends \BaseController {
 	 */
 	public function index()
 	{
-
-
 		$room = Room::with('roomQty','roomImages.photo')->get();
 		//return $room;
 		$cpage = 'roommgt';

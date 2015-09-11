@@ -10,8 +10,13 @@ class ReportsController extends \BaseController {
 	 */
 	public function index()
 	{
+		$years = [];
+		for($i=0;$i<10;$i++)
+		{
+		array_push($years, date("Y",strtotime("-".$i." year")));
+		}
 		$cpage = 'reports';
-		return View::make('adminview.reports.index', compact('cpage'));
+		return View::make('adminview.reports.index', compact('cpage','years'));
 	}
 
 	/**

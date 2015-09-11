@@ -22,13 +22,14 @@ class BookingController extends \BaseController {
 				->orWhereRaw('"'.Session::has('checkin').'" between check_in and check_out')
 				->orWhereRaw('"'.Session::has('checkout').'" between check_in and check_out')
 				->where('status','!=',5);
-			}))->get();
+			}))->get();	
 			foreach($room as $r)
 			{
 				if($r->roomReserved->count()==0){
 					$available_rooms++;
 				}
 			}
+
 			$room = $room->toArray();
 			$room1['quantity'] = $room;
 			$room1['available_rooms']=$available_rooms;
@@ -54,11 +55,48 @@ class BookingController extends \BaseController {
 		->where('status','!=',5)->get();
 		return $query;
 	}
+	
 	public function thisYearList()
-	{
+	{	
 		$today = date("Y");
+
+		if(isset($_GET['filtertype']))
+		{
+			if($_GET['filtertype']!=1)
+			{
+				$today = (isset($_GET['year1'])) ? $_GET['year1'] :  date("Y");
+				$room = Room::with('roomQty')->with(array('roomQty.roomReserved' => function($query) use ($today)
+				{
+					$query->whereRaw('YEAR(check_in) = '.$today);
+				}))->select('id','name')->get();
+				$output = [];
+				return $room;
+			}else
+			{
+				$year1 = (isset($_GET['year1'])) ? $_GET['year1'] :  date("Y");
+				$year2 = (isset($_GET['year2'])) ? $_GET['year2'] :  date("Y");
+				
+				$year1_result = Room::with('roomQty')->with(array('roomQty.roomReserved' => function($query) use ($year1)
+				{
+					$query->whereRaw('YEAR(check_in) = '.$year1);
+				}))->select('id','name')->get();
+
+				$year2_result = Room::with('roomQty')->with(array('roomQty.roomReserved' => function($query) use ($year2)
+				{
+					$query->whereRaw('YEAR(check_in) = '.$year2);
+				}))->select('id','name')->get();
+
+				$result = array();
+				$result['year1'] = $year1_result;
+				$result['year2'] = $year2_result;
+				return $result;
+			}
+		}
 		$booking_recent = ReservedRoom::with('room.roomDetails2')->whereRaw('YEAR(check_in) = '.$today)->get();
-		$room = Room::with('roomQty.roomReserved')->select('id','name')->get();
+		$room = Room::with('roomQty')->with(array('roomQty.roomReserved' => function($query) use ($today)
+		{
+			$query->whereRaw('YEAR(check_in) = '.$today);
+		}))->select('id','name')->get();
 		$output = [];
 		return $room;
 		if(!empty($booking_recent)){
@@ -69,6 +107,7 @@ class BookingController extends \BaseController {
 			return '0';
 		}
 	}
+
 	public function bookingList(){
 		$booking_recent = Booking::with('reservedRoom.room.roomDetails')->get();
 		//$booking_recent = ReservedRoom::with('room.roomDetails')->get();

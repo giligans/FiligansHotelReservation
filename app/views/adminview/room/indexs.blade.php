@@ -30,14 +30,15 @@ indexRoomCtrl
 		</div>
 		<img src='{{ URL::to("images/loader.gif") }}'>
 	</center>
-	<table class="table table-striped table-hover" ng-show='hideloading' ng-cloak>
+	<table style='text-align:center' class="table table-striped table-hover" ng-show='hideloading' ng-cloak>
 		<thead>
 			<tr>
 				<th>#</th>
-				<th>Room ID</th>
+			
 				<th>Name</th>
 				<th>Quantity</th>
-				<th>Max Adult</th>
+				<th>Max <br>Adult</th>
+				<th>Available</th>
 				<th>Max Children</th>
 				<th>Price</th>
 				<th>Action</th>
@@ -47,11 +48,12 @@ indexRoomCtrl
 		<tbody>
 			<tr ng-repeat='r in rooms'>
 				<td ng-bind='$index+1'></td>
-				<td ng-bind='r.id'></td>
 				<td ng-bind='r.name'></td>
 				<td ng-bind='r.room_qty.length'></td>
+			
 				<td ng-bind='r.max_adults'></td>
-				<td ng-bind='r.max_children'></td>
+				<td></td>
+			<td ng-bind='r.max_children'></td>
 				<td ng-bind='r.price | currency:"₱"'></td>
 				<td>
 					<a class="btn btn-xs btn-warning" href='/adminsite/room/[[ r.id ]]/update'><span class="glyphicon glyphicon glyphicon-edit"></a>

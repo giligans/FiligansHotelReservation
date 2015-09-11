@@ -124,10 +124,8 @@ Route::post('booking/step2', function(){
 });
 
 Route::get('booking/step3', function(){
-
 	$cpage = 'booking.step3';
 	return View::make('clientview2.booking.step3', compact('cpage'));
-
 });
 
 Route::post('booking/step3', function(){
@@ -147,14 +145,14 @@ Route::get('booking/step4', function(){
 });
 
 Route::post('booking/payment', array(
-'as' => 'payment',
-'uses' => 'PaypalController@postPayment',
-));
+	'as' => 'payment',
+	'uses' => 'PaypalController@postPayment',
+	));
 // this is after make the payment, PayPal redirect back to your site
 Route::get('payment/status', array(
-'as' => 'payment.status',
-'uses' => 'PaypalController@getPaymentStatus',
-));
+	'as' => 'payment.status',
+	'uses' => 'PaypalController@getPaymentStatus',
+	));
 
 
 Route::post('booking/step5', function()

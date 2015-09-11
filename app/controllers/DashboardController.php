@@ -8,6 +8,8 @@ class DashboardController extends \BaseController {
 	*/
 	public function index()
 	{
+
+		
 		$cpage = 'dashboard';
 		$booking_recent = Booking::take(10)->get();
 		$booking_recent_arr = array();
