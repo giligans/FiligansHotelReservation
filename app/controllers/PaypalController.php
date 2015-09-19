@@ -30,13 +30,17 @@ class PaypalController extends BaseController
         $i['total_nights'] = Session::get('reservation')['nights'];
         $total_price = 0;
         $tax_price = 0;
+        $item = [];
 //return Session::get('reservation');
 //return Session::get('reservation')['reservation_room'][0]['room_details']['price'];
         $payer->setPaymentMethod('paypal');
         /*$roomKey variable for indexing the $rooms array.*/
+
         foreach(Session::get('reservation')['reservation_room'] as $roomKey=>$rooms)
         {
             $total_price+=$rooms['room_details']['price'] * $i['total_nights'] * $rooms['quantity'];
+
+
             $room_id = $rooms['room_details']['id'];
             $available_rooms = [];
             $room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
@@ -61,21 +65,22 @@ $item[$roomKey]->setName($rooms['room_details']['name']) // item name
 }
 } //end of foreach
 /*gathering the items*/
+
 $item_list = new ItemList();
 $item_list->setItems($item);
-//return $total_price;
+
 $tax_price = $total_price*0.12;
 /*set tax*/
 $details = new Details();
 $details
-->setTax($tax_price)
 ->setSubtotal($total_price);
-$total_price += $tax_price;
+
 /*computing the amout*/
 $amount = new Amount();
 $amount->setCurrency('PHP')
 ->setDetails($details)
 ->setTotal($total_price);
+
 /*creation of transaction starts here*/
 $transaction = new Transaction();
 $transaction->setAmount($amount)
@@ -136,11 +141,11 @@ public function getPaymentStatus()
     $result = $payment->execute($execution, $this->_api_context);
     /*echo '<pre>';print_r($result);echo '</pre>';exit; // DEBUG RESULT, remove it later*/
 if ($result->getState() == 'approved') { // payment made
-    $tax = null;
+   // $tax = null;
     $total_price = null;
     $i = [];
-    $i['checkin'] = Session::get('reservation')['checkin'];
-    $i['checkout'] = Session::get('reservation')['checkout'];
+    $i['checkin'] = Session::get('reservation')['checkin']. '12:00:00';
+    $i['checkout'] = Session::get('reservation')['checkout']. '11:59:00';
     $customerinformation = Session::get('reservation.customerinformation');
 $count = 0; //for test
 $count1 = 0; //for test
@@ -153,6 +158,7 @@ $new_booking->contact_number = $customerinformation['contact_no'];
 $new_booking->email_address = $customerinformation['email'];
 $new_booking->check_in = $i['checkin'];
 $new_booking->check_out = $i['checkout'];
+$new_booking->payment_type= 'paypal';
 $new_booking->save();
 foreach(Session::get('reservation')['reservation_room'] as $rooms)
 {
@@ -165,8 +171,12 @@ foreach(Session::get('reservation')['reservation_room'] as $rooms)
             ->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
             ->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
             ->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-        })->where('status','!=',5);
+        })->where(function($query3)
+        {
+            $query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+        });
     }))->where('room_id', $room_id)->get();
+
     foreach($room_qty as $available)
     {
         if($available->roomReserved== '[]')
@@ -187,16 +197,15 @@ if(!empty($booked_room))
         $roomprice = $b->roomPrice->price * Session::get('reservation.nights');
 
         $total += $b->roomPrice->price * Session::get('reservation.nights');
-        $tax = $total * 0.12;
-        $roomprice+=$tax;
-        $total = $total + $tax;
+      //  $roomprice+=$tax;
+        //$total = $total + $tax;
         $reserveRoom = new ReservedRoom;
         $reserveRoom->booking_id = $new_booking->id;
         $reserveRoom->room_id = $b->id;
         $reserveRoom->price = $roomprice;
         $reserveRoom->check_in = $i['checkin'];
         $reserveRoom->check_out = $i['checkout'];
-        $reserveRoom->status = 1;
+        $reserveRoom->status= 1;
         $reserveRoom->firstname = $customerinformation['firstname'];
         $reserveRoom->lastname = $customerinformation['lastname'];
         $reserveRoom->address = $customerinformation['address'];
@@ -205,8 +214,8 @@ if(!empty($booked_room))
         $reserveRoom->save();
     }
 }
-$tax = $total * 0.12;
-$total = $total + $tax;
+//$tax = $total * 0.12;
+//$total = $total + $tax;
 $new_booking->price = $total;
 $new_booking->paid = $total;
 $new_booking->status=1;

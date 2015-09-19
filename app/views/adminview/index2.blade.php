@@ -45,12 +45,19 @@ indexCtrl
 					<td>{{ $b->check_in->toFormattedDateString()  }}</td>
 					<td style="text-align:center"> {{ $nights }} </td>
 					<td>
+					
 						@if($b->status==1)
 						<span class="label label-success">Paid</span>
 						@elseif($b->status==0)
 						<span class="label label-warning">Pending</span>
 						@elseif($b->status==5)	
 						<span class="label label-danger">Cancelled</span>
+						@elseif($b->status==2)	
+						<span class="label label-primary">Occupied</span>
+						@elseif($b->status==4)	
+						<span class="label label-info">Preparing</span>
+						@elseif($b->status==3)	
+						<span class="label label-info">Ended</span>
 						@endif
 
 					</td>

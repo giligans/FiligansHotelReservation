@@ -136,7 +136,7 @@ function reservationList()
                         while(y!=0)
                         {
                             y--;
-                            if(data[i].room_qty[x].room_reserved[y].status==1)
+                            if(data[i].room_qty[x].room_reserved[y].status==1 || data[i].room_qty[x].room_reserved[y].status==3 || data[i].room_qty[x].room_reserved[y].status==2)
                             {
                                 var checkin = moment(data[i].room_qty[x].room_reserved[y].check_in.date).month();
 
@@ -159,11 +159,11 @@ function reservationList()
                                 {
                                     w_feb += parseInt(data[i].room_qty[x].room_reserved[y].price); 
                                 }else{
-                                 p_feb += parseInt(data[i].room_qty[x].room_reserved[y].price); 
-                             }
+                                   p_feb += parseInt(data[i].room_qty[x].room_reserved[y].price); 
+                               }
 
-                         }
-                         else if(checkin==2){
+                           }
+                           else if(checkin==2){
                             b_mar++;
                             if(data[i].room_qty[x].room_reserved[y].code=='N/A')
                             {
@@ -179,26 +179,26 @@ function reservationList()
                             {
                                 w_apr+=parseInt(data[i].room_qty[x].room_reserved[y].price);
                             }else{
-                               p_apr+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-                           }
-                       }
-                       else if(checkin==4){
+                             p_apr+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+                         }
+                     }
+                     else if(checkin==4){
                         b_may++;
                         if(data[i].room_qty[x].room_reserved[y].code=='N/A')
                         {
                             w_may+=parseInt(data[i].room_qty[x].room_reserved[y].price);
                         }else{
-                           p_may+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-                       }
-                   }else if(checkin==5){
+                         p_may+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+                     }
+                 }else if(checkin==5){
                     b_jun++;
                     if(data[i].room_qty[x].room_reserved[y].code=='N/A')
                     {
                         w_jun+=parseInt(data[i].room_qty[x].room_reserved[y].price);
                     }else{
-                       p_jun+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-                   }
-               }else if(checkin==6){
+                     p_jun+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+                 }
+             }else if(checkin==6){
                 b_jul++;
                 if(data[i].room_qty[x].room_reserved[y].code=='N/A')
                 {
@@ -221,9 +221,9 @@ function reservationList()
                     w_sep+=parseInt(data[i].room_qty[x].room_reserved[y].price);
                 }else{
 
-                   p_sep+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-               }
-           }else if(checkin==9){
+                 p_sep+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+             }
+         }else if(checkin==9){
             b_oct++;
             if(data[i].room_qty[x].room_reserved[y].code=='N/A')
             {
@@ -237,20 +237,20 @@ function reservationList()
             {
                 w_nov+=parseInt(data[i].room_qty[x].room_reserved[y].price);
             }else{
-               p_nov+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-           }
-       }
-       else if(checkin==11){
+             p_nov+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+         }
+     }
+     else if(checkin==11){
         b_dec++;
         if(data[i].room_qty[x].room_reserved[y].code=='N/A')
         {   
             w_dec+=parseInt(data[i].room_qty[x].room_reserved[y].price);
         }else{
-           p_dec+=parseInt(data[i].room_qty[x].room_reserved[y].price);
-       }
-   }
+         p_dec+=parseInt(data[i].room_qty[x].room_reserved[y].price);
+     }
+ }
 
-   /*if(data[i].room_qty[x].room_reserved[y].o)*/
+ /*if(data[i].room_qty[x].room_reserved[y].o)*/
 }
 } //end while
 }// end of if(filtersetting.type!=1)
@@ -267,8 +267,8 @@ success_data.push(data_bookings);
 }else
 {
 
-   while(year1_count!=0)
-   {
+ while(year1_count!=0)
+ {
     count++;
     var b_jan = 0;
     var b_feb=0, b_mar=0, b_apr=0, b_may=0, b_jun=0, b_jul=0, b_aug=0, b_sep=0, b_oct=0, b_nov=0, b_dec=0;
@@ -287,7 +287,7 @@ success_data.push(data_bookings);
         while(y!=0)
         {
             y--;
-            if(data.year1[year1_count].room_qty[x].room_reserved[y].status==1)
+            if(data.year1[year1_count].room_qty[x].room_reserved[y].status==1 || data.year1[year1_count].room_qty[x].room_reserved[y].status==3 || data.year1[year1_count].room_qty[x].room_reserved[y].status==2)
             {
                 var checkin = moment(data.year1[year1_count].room_qty[x].room_reserved[y].check_in.date).month();
 
@@ -310,11 +310,11 @@ success_data.push(data_bookings);
                                 {
                                     w_feb += parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price); 
                                 }else{
-                                 p_feb += parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price); 
-                             }
+                                   p_feb += parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price); 
+                               }
 
-                         }
-                         else if(checkin==2){
+                           }
+                           else if(checkin==2){
                             b_mar++;
                             if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
                             {
@@ -330,26 +330,26 @@ success_data.push(data_bookings);
                             {
                                 w_apr+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
                             }else{
-                               p_apr+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-                           }
-                       }
-                       else if(checkin==4){
+                             p_apr+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+                         }
+                     }
+                     else if(checkin==4){
                         b_may++;
                         if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
                         {
                             w_may+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
                         }else{
-                           p_may+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-                       }
-                   }else if(checkin==5){
+                         p_may+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+                     }
+                 }else if(checkin==5){
                     b_jun++;
                     if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
                     {
                         w_jun+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
                     }else{
-                       p_jun+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-                   }
-               }else if(checkin==6){
+                     p_jun+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+                 }
+             }else if(checkin==6){
                 b_jul++;
                 if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
                 {
@@ -372,9 +372,9 @@ success_data.push(data_bookings);
                     w_sep+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
                 }else{
 
-                   p_sep+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-               }
-           }else if(checkin==9){
+                 p_sep+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+             }
+         }else if(checkin==9){
             b_oct++;
             if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
             {
@@ -388,20 +388,20 @@ success_data.push(data_bookings);
             {
                 w_nov+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
             }else{
-               p_nov+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-           }
-       }
-       else if(checkin==11){
+             p_nov+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+         }
+     }
+     else if(checkin==11){
         b_dec++;
         if(data.year1[year1_count].room_qty[x].room_reserved[y].code=='N/A')
         {
             w_dec+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
         }else{
-           p_dec+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
-       }
-   }
+         p_dec+=parseInt(data.year1[year1_count].room_qty[x].room_reserved[y].price);
+     }
+ }
 
-   /*if(data[i].room_qty[x].room_reserved[y].o)*/
+ /*if(data[i].room_qty[x].room_reserved[y].o)*/
 }
 } //end while
 }// end of if(filtersetting.type!=1)
@@ -437,7 +437,7 @@ while(year2_count!=0)
         while(y!=0)
         {
             y--;
-            if(data.year2[year2_count].room_qty[x].room_reserved[y].status==1)
+            if(data.year2[year2_count].room_qty[x].room_reserved[y].status==1 || data.year2[year2_count].room_qty[x].room_reserved[y].status==2 || data.year2[year2_count].room_qty[x].room_reserved[y].status==3)
             {
                 var checkin = moment(data.year2[year2_count].room_qty[x].room_reserved[y].check_in.date).month();
 
@@ -460,11 +460,11 @@ while(year2_count!=0)
                                 {
                                     w2_feb += parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price); 
                                 }else{
-                                 p2_feb += parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price); 
-                             }
+                                   p2_feb += parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price); 
+                               }
 
-                         }
-                         else if(checkin==2){
+                           }
+                           else if(checkin==2){
                             b2_mar++;
                             if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
                             {
@@ -480,26 +480,26 @@ while(year2_count!=0)
                             {
                                 w2_apr+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
                             }else{
-                               p2_apr+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-                           }
-                       }
-                       else if(checkin==4){
+                             p2_apr+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+                         }
+                     }
+                     else if(checkin==4){
                         b2_may++;
                         if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
                         {
                             w2_may+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
                         }else{
-                           p2_may+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-                       }
-                   }else if(checkin==5){
+                         p2_may+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+                     }
+                 }else if(checkin==5){
                     b2_jun++;
                     if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
                     {
                         w2_jun+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
                     }else{
-                       p2_jun+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-                   }
-               }else if(checkin==6){
+                     p2_jun+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+                 }
+             }else if(checkin==6){
                 b2_jul++;
                 if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
                 {
@@ -522,9 +522,9 @@ while(year2_count!=0)
                     w2_sep+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
                 }else{
 
-                   p2_sep+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-               }
-           }else if(checkin==9){
+                 p2_sep+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+             }
+         }else if(checkin==9){
             b2_oct++;
             if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
             {
@@ -538,20 +538,20 @@ while(year2_count!=0)
             {
                 w2_nov+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
             }else{
-               p2_nov+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-           }
-       }
-       else if(checkin==11){
+             p2_nov+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+         }
+     }
+     else if(checkin==11){
         b2_dec++;
         if(data.year2[year2_count].room_qty[x].room_reserved[y].code=='N/A')
         {
             w2_dec+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
         }else{
-           p2_dec+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
-       }
-   }
+         p2_dec+=parseInt(data.year2[year2_count].room_qty[x].room_reserved[y].price);
+     }
+ }
 
-   /*if(data[i].room_qty[x].room_reserved[y].o)*/
+ /*if(data[i].room_qty[x].room_reserved[y].o)*/
 }
 } //end while
 }// end of if(filtersetting.type!=1)
@@ -582,15 +582,15 @@ console.log(data_profit);
 
            if(filtersetting.type!=1)
            {
-               console.log('compare datas');
-               $scope.success_booking.series = success_series;
-               console.log($scope.success_booking.series);
-               $scope.success_booking.data = success_data;
-               $scope.data.push(data_profit);
-               $scope.data2.push(data_profit2);
+             console.log('compare datas');
+             $scope.success_booking.series = success_series;
+             console.log($scope.success_booking.series);
+             $scope.success_booking.data = success_data;
+             $scope.data.push(data_profit);
+             $scope.data2.push(data_profit2);
 
-           }
-           else{
+         }
+         else{
             console.log('compare data');
             console.log(success_data);
             $scope.compare_booking.year1.series = success_series;

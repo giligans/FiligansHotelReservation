@@ -1,7 +1,6 @@
 <?php
 
 class RoomController extends \BaseController {
-
 	/**
 	 * Display a listing of the resource.
 	 * GET /room
@@ -10,9 +9,43 @@ class RoomController extends \BaseController {
 	 */
 	public function index()
 	{
-		$room = Room::with('roomQty','roomImages.photo')->get();
 		//return $room;
 		$cpage = 'roommgt';
+		$today = Date('Y-m-d H:i:s');
+		$room = Room::with(array('roomQty.roomReserved' => function($query) use($today){
+			$query->where(function($query2) use($today){
+				$query2->whereBetween('check_in', array($today, $today))
+				->orWhereBetween('check_out', array($today, $today))
+				->orWhereRaw('"'.$today.'" between check_in and check_out')
+				->orWhereRaw('"'.$today.'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
+			
+		}, 'roomImages.photo'))->get();
+		foreach($room as $r)
+		{
+			$available = 0;
+			foreach($r->roomQty as $roomQty)
+			{
+				if(count($roomQty->roomReserved)==0 )
+				{
+					$available++;
+				}
+				else
+				{
+					foreach($roomQty->roomReserved as $roomReserved)
+					{
+						if($roomReserved->status==3)
+						{
+							$available++;
+						}
+					}
+				}
+				$r->available = $available;
+			}
+		}
 		return View::make('adminview.room.indexs', compact('cpage'));
 	}
 
@@ -25,22 +58,26 @@ class RoomController extends \BaseController {
 	public function availability_admin($id)
 	{
 		$i = Input::all();
-
+		$i['checkin'] = $i['checkin'].' 12:00:00';
+		$i['checkout'] = $i['checkout'].' 11:59:00';
 		$available_rooms = 0;
 		$room1= [];
-	//$roomDetails = Room::where('id')->first();
+		//$roomDetails = Room::where('id')->first();
 		$room = RoomQty::where('room_id', $id)->with(array('roomReserved' => function($query) use ($id ,$i){
 			$query->where(function($query2) use($i){
 				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
 				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-			})->where('status','!=',5);
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
 		}))->get();
 
 		foreach($room as $r)
 		{
-//$available_rooms = $r;
+		//$available_rooms = $r;
 			if($r->roomReserved->count()==0){
 				$available_rooms++;
 			}
@@ -61,11 +98,45 @@ class RoomController extends \BaseController {
 		$reservation['status'] = 0; // means unavailable :(
 			return $reservation;
 		}
-
+		return 'test';
 	}
-
 	public function allRooms(){
-		$room = Room::with('roomQty','roomImages.photo')->get();
+		$today = Date('Y-m-d H:i:s');
+		$room = Room::with(array('roomQty.roomReserved' => function($query) use($today){
+			$query->where(function($query2) use($today){
+				$query2->whereBetween('check_in', array($today, $today))
+				->orWhereBetween('check_out', array($today, $today))
+				->orWhereRaw('"'.$today.'" between check_in and check_out')
+				->orWhereRaw('"'.$today.'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
+		}, 'roomImages.photo'))->get();
+		foreach($room as $r)
+		{
+			$available = 0;
+			foreach($r->roomQty as $roomQty)
+			{
+				if(count($roomQty->roomReserved)==0 )
+				{
+					$available++;
+				}
+				else
+				{
+					foreach($roomQty->roomReserved as $roomReserved)
+					{
+						if($roomReserved->status==3)
+						{
+							$available++;
+						}
+					}
+				}
+				$r->available = $available;
+			}
+		}
+
+
 		return $room;
 	}
 	/*VALIDATION OF ROOM NUMBER*/
@@ -102,8 +173,12 @@ class RoomController extends \BaseController {
 	{
 
 		$i = Input::all(); 
+		$i['checkin'] = $i['checkin'].' 12:00:00'; // 
+		$i['checkout'] = $i['checkout'].' 11:59:00';
 		$total_price = null;
 		$tax = null;
+		
+		$booking_session = [];
 	$count = 0; //for test
 	$count1 = 0; //for test
 	$booked_room = []; //all picked rooms from available rooms
@@ -118,14 +193,20 @@ class RoomController extends \BaseController {
 			->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 			->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 			->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-		})->where('status','!=',5);
+		})->where(function($query3)
+		{
+			$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+		});
 	}))->where('room_id', $room_id)->get();
 
 	foreach($room_qty as $available)
 	{		
-		if($available->roomReserved== '[]')
+		if(count($available->roomReserved)==0 )
 		{
 			array_push($available_rooms, $available);
+		}else
+		{
+
 		}
 	}
 	if(!empty($available_rooms))
@@ -136,34 +217,40 @@ class RoomController extends \BaseController {
 	}else{
 			return '0'; //not available
 		}
-		
 	//} //end of foreach
 		$total_price = 0;
+		if(!isset($_GET['bookingId'])) // bookingId will be set if the admin booked multiple rooms at one booking session.
+		{ 
+			$new_booking = new Booking;
+			$new_booking->firstname = 'WALK-IN';
+			$new_booking->lastname = 'WALK-IN';
+			$new_booking->address = 'WALK-IN';
+			$new_booking->contact_number = '000';
+			$new_booking->check_in = $i['checkin'];
+			$new_booking->check_out = $i['checkout'];
+			$new_booking->email_address = 'WALK-IN';
+			$new_booking->code='N/A';
+			$new_booking->status = 0; 
+			$new_booking->save();
 
-		$new_booking = new Booking;
-		$new_booking->firstname = 'WALK-IN';
-		$new_booking->lastname = 'WALK-IN';
-		$new_booking->address = 'WALK-IN';
-		$new_booking->contact_number = '000';
-		$new_booking->check_in = $i['checkin'];
-		$new_booking->check_out = $i['checkout'];
-		$new_booking->email_address = 'WALK-IN';
-		$new_booking->code='N/A';
-		$new_booking->status = 0; 
-		$new_booking->save();
+		}
+		
+
 		foreach($booked_room as $b)
 		{
+
 			$ci = new Carbon($i['checkin']);
 			$co = new Carbon($i['checkout']);
 			$total_nights = $co->diff($ci)->days;
 			$total_nights+=1;
 			$total_price += $total_nights * $b->roomPrice->price;
 			$total_price2 = $total_nights * $b->roomPrice->price;
-			$tax = $total_price2 * 0.12;
-			$total_price2+=$tax;
+			//$tax = $total_price2 * 0.12;
+			//$total_price2+=$tax;
 			$reserveRoom = new ReservedRoom;
 			$reserveRoom->room_id = $b->id;
-			$reserveRoom->booking_id = $new_booking->id;
+			$reserveRoom->room_type = $b->room_id;
+			$reserveRoom->booking_id = (isset($_GET['bookingId'])) ? $_GET['bookingId'] : $new_booking->id;
 			$reserveRoom->check_in = $i['checkin'];
 			$reserveRoom->check_out = $i['checkout'];
 			$reserveRoom->code='N/A';
@@ -179,13 +266,27 @@ class RoomController extends \BaseController {
 				array_push($booked_room_id,	$reserveRoom->id);
 			}
 		}
-		$new_booking->price = $total_price;
-		$new_booking->save();
+		if(isset($_GET['bookingId']))
+		{
+			$existing_booking = Booking::where('id', $_GET['bookingId'])->first();
+			if($existing_booking)
+			{
+				$existing_booking->price = $total_price;
+			}
+
+		}else
+		{
+			$new_booking->price = $total_price;
+			$new_booking->save();
+		}
+		
 //	return Session::get('reservation');
 	//return $booked_room;
 	//return $counter;
 	//return $room_qty1;
-		return $booked_room_id;
+		$booking_session['booking_id'] = (isset($_GET['bookingId'])) ? $_GET['bookingId'] : $new_booking->id;
+		$booking_session['rooms'] = $booked_room_id;
+		return $booking_session;
 	}
 
 	public function create()
@@ -261,20 +362,24 @@ class RoomController extends \BaseController {
 	public function show($id)
 	{
 		$cpage = 'room';
-		$today = Date('Y-m-d');
-		//return $today;
-		$room = Room::with(array('roomQty.roomReserved' => function($query) use($today){
-			$query->where(function($query2) use($today){
-				$query2->whereBetween('check_in', array($today, $today))
-				->orWhereBetween('check_out', array($today, $today))
+		$today = Date('Y-m-d H:i:s');
+		$tomorrow = new DateTime('tomorrow');
+		$tomorrow = $tomorrow->format('Y-m-d').' 12:00:00';
+		
+		$room = Room::with(array('roomQty.roomReserved' => function($query) use($today, $tomorrow){
+			$query->where(function($query2) use($today, $tomorrow){
+				$query2->whereBetween('check_in', array($today, $tomorrow))
+				->orWhereBetween('check_out', array($today, $tomorrow))
 				->orWhereRaw('"'.$today.'" between check_in and check_out')
-				->orWhereRaw('"'.$today.'" between check_in and check_out');
-
-			})->where('status','!=', 5);
+				->orWhereRaw('"'.$tomorrow.'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
 			
 		}, 'roomImages.photo'))->where('id', $id)->first();
 		//return $room->roomQty;
-		//return $room;
+
 		return View::make('adminview.room.show', compact('cpage', 'room'));
 	}
 	/**
@@ -395,7 +500,10 @@ class RoomController extends \BaseController {
 					->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 					->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 					->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-				})->where('status','!=',5);
+				})->where(function($query3)
+				{
+					$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				});
 			}))->get();
 			return $room1;
 		}

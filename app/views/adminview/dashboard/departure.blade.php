@@ -16,29 +16,30 @@ departureController
 			<div class="modal-body">
 				<table class="table table-hover">
 					<tr>
-						<td>Room Number: </td>
-						<td ng-bind='displayBooking.room.room_no'></td>
+						<td>Room Type / <br>Room Number</td>
+						<td>
+							<span class="label label-primary" ng-repeat='r in displayBooking.reserved_room' ng-bind='r.room.room_details.name +"(# "+ r.room.room_no+")"' style='margin:3px;'></span>
+
+						</td>
 					</tr>
 					<tr>
 						<td>Check In: </td>
-						<td ng-bind='displayBooking.check_in.date'> </td>
+						<td ng-bind='displayBooking.checkindate'> </td>
 					</tr>
 					<tr>
 						<td>Nights</td>
 						<td ng-bind='displayBooking.nights'></td>
 					</tr>
-					<tr>
-						<td>Room Type</td>
-						<td>
-							<span class="label label-primary" ng-repeat='r in displayBooking.reserved_room' ng-bind='r.room.room_details.name' style='margin:3px;'></span>
-						</td>
-					</tr>
+					
 					<tr>
 						<td>Status</td>
 						<td>
 							<span class="label label-success" ng-show='displayBooking.status==1'>Paid</span>
 							<span class="label label-warning" ng-show='displayBooking.status==0'>Pending</span>
 							<span class="label label-danger" ng-show='displayBooking.status==5'>Cancelled</span>
+							<span class="label label-danger" ng-show='displayBooking.status==2'>Occupied</span>
+							<span class="label label-info" ng-show='displayBooking.status==4'>Preparing</span>
+							<span class="label label-primary" ng-show='displayBooking.status==3'>Ended</span>
 						</td>
 					</tr>
 					<tr ng-show='displayBooking.status==5'>
@@ -53,9 +54,14 @@ departureController
 						<td>Price</td>
 						<td ng-bind='displayBooking.price | currency: "P"'></td>
 					</tr>
+
+					<tr>
+						<td>Paid</td>
+						<td ng-bind='displayBooking.paid | currency: "P"'></td>
+					</tr>
 					<tr>
 						<td>Reservation Code</td>
-						<td> </td>
+						<td ng-bind='displayBooking.code'> </td>
 					</tr>
 					<tr>
 						<td>Address</td>
@@ -71,7 +77,7 @@ departureController
 					</tr>
 					<tr>
 						<td>Created At</td>
-						<td ng-bind='displayBooking.created_at'></td>
+						<td ng-bind='displayBooking.datecreated'></td>
 					</tr>
 					<tr>
 						<td>Last Updated</td>
@@ -81,7 +87,7 @@ departureController
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save changes</button>
+
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
@@ -99,6 +105,11 @@ departureController
 					<option value="0">Pending</option>
 					<option value="1">Paid</option>
 					<option value="5">Cancelled</option>
+					<option value="2">Occupied</option>
+					<option value="4" ng-show='displayBooking.status==2 || displayBooking.status==1'>Preparing</option>
+					<option value="3" ng-show='displayBooking.status==2 || displayBooking.status==4'>Ended</option>
+					
+
 				</select>
 				<div class="clearfix" style='margin:10px;'>
 				</div>
@@ -152,7 +163,7 @@ departureController
 					<span ng-bind='b.lastname'></span>
 				</td>
 				<td>H23SD</td>
-				<td ng-bind='b.check_in.date'></td>
+				<td ng-bind='b.checkindate'></td>
 				<td ng-bind='b.nights'></td>
 				<td>
 					<span class="label label-success" ng-show='b.status==1'>Paid</span>

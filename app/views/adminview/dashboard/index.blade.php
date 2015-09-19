@@ -61,6 +61,12 @@ indexCtrl
 						<span class="label label-warning">Pending</span>
 						@elseif($b->status==5)	
 						<span class="label label-danger">Cancelled</span>
+						@elseif($b->status==2)	
+						<span class="label label-primary">Occupied</span>
+						@elseif($b->status==4)	
+						<span class="label label-info">Preparing</span>
+						@elseif($b->status==3)	
+						<span class="label label-info">Ended</span>
 						@endif
 					</td>
 					<td> {{ $b->created_at->toDayDateTimeString() }}</td>
@@ -82,7 +88,7 @@ indexCtrl
 
 						<strong>Total Earnings Today</strong> <br>
 						<h2 style='margin:0px;font-family: Open Sans' ng-bind='profit_today | currency:"P"'>
- 
+
 						</h2>
 					</div>
 
@@ -104,12 +110,25 @@ indexCtrl
 							Arrival
 						</li>
 					</a>
+					<a href='{{URL::to("adminsite/dashboard/cancelled_booking")}}'>
+						<li class="list-group-item">
+							<span class="badge"> {{ $occupied }}</span>
+							Occupied
+						</li>
+					</a>
 					<a href='{{URL::to("adminsite/dashboard/departure")}}'>
 						<li class="list-group-item">
 							<span class="badge"> {{ $departure }} </span>
 							Departure
 						</li>
 					</a>
+					<a href='{{URL::to("adminsite/dashboard/cancelled_booking")}}'>
+						<li class="list-group-item">
+							<span class="badge"> {{ $preparing }}</span>
+							Preparing
+						</li>
+					</a>
+
 					<a href='{{URL::to("adminsite/dashboard/cancelled_booking")}}'>
 						<li class="list-group-item">
 							<span class="badge"> {{ $cancelled }}</span>

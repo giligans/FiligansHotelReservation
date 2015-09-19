@@ -108,7 +108,7 @@ homeController
 	}).controller('homeController', ['$scope', function($scope){
 		$scope.availability = {
 			checkin : null,
-			checkout : moment().format('YYYY[-]MM[-]DD'),
+			checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
 			display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
 		}
 		$scope.nights=null;
@@ -119,7 +119,7 @@ homeController
 
 			}else if($scope.nights==1){
 				$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.checkout = moment(newVal).format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
 
 			}
 
@@ -129,12 +129,12 @@ homeController
 				$scope.nights=1;
 			}
 			if(newVal>1){
-				$scope.availability.checkout = moment($scope.availability.checkin).add(newVal-1, 'days').format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
 				$scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
 				console.log($scope.availability.display_checkout);
 
 			}else if(newVal==1){
-				$scope.availability.checkout = moment($scope.availability.checkin).format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
 				$scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
 
 			}

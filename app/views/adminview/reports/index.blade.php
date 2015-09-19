@@ -136,6 +136,7 @@ reportController
 					</div>
 					<img src='{{ URL::to("images/loader.gif") }}'>
 				</center>
+				
 				@if(isset($_GET['filtertype']))
 				@if($_GET['filtertype']!=1)
 				<h2 class='text-center' style='color:#777'>{{ ((isset($_GET['year1']))) ? $_GET['year1'] : date('Y') }}</h2>

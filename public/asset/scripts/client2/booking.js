@@ -12,38 +12,37 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
 	//bookingFactory.test();
   $scope.availability = {
     checkin : moment().format('YYYY[-]MM[-]DD'),
-    checkout : moment().format('YYYY[-]MM[-]DD'),
+    checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
     display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
   }
   $scope.nights=1;
   $scope.$watch('availability.checkin', function(newVal, oldVal){
     if($scope.nights>1){
-       $scope.availability.checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
-        $scope.availability.display_checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
+     $scope.availability.checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
+     $scope.availability.display_checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
+   }else if($scope.nights==1){
+     $scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
+     $scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
 
-     }else if($scope.nights==1){
-       $scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-       $scope.availability.checkout = moment(newVal).format('YYYY[-]MM[-]DD');
+   }
 
-     }
-
-  });
+ });
   $scope.$watch('nights', function(newVal, oldVal){
     if(newVal<1){
       $scope.nights=1;
     }
     if(newVal>1){
-      $scope.availability.checkout = moment($scope.availability.checkin).add(newVal-1, 'days').format('YYYY[-]MM[-]DD');
-       $scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
-        console.log($scope.availability.display_checkout);
+      $scope.availability.checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
+      $scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
+
 
     }else if(newVal==1){
-      $scope.availability.checkout = moment($scope.availability.checkin).format('YYYY[-]MM[-]DD');
-       $scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
+      $scope.availability.checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
+      $scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
 
     }
    // console.log($scope.availability.checkout)
-  })
+ })
 
 
 }]).

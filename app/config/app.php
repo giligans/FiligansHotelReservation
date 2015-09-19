@@ -106,7 +106,7 @@ return array(
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 		'Way\Generators\GeneratorsServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
-		
+		'Barryvdh\Debugbar\ServiceProvider',
 		'Fitztrev\LaravelHtmlMinify\LaravelHtmlMinifyServiceProvider',
 		'Torann\Currency\CurrencyServiceProvider',
 
@@ -174,5 +174,6 @@ return array(
 		'Carbon'			=> 'Carbon\Carbon',
 		'Image' => 'Intervention\Image\Facades\Image',
 		'Currency' => 'Torann\Currency\Facades\Currency',
+		'Debugbar' => 'Barryvdh\Debugbar\Facade',
 		),
 );

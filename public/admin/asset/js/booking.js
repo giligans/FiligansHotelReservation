@@ -16,6 +16,14 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 			}
 			return $http.post('/adminsite/booking/'+data.id+'/update', info);
 		},
+		proceedPayment : function(data)
+		{
+			var info = 
+			{
+				paid : data.paid
+			}
+			return $http.post('/adminsite/booking/'+data.id+'/payment', info);
+		},
 		checkAvailability : function(data,quantity)
 		{
 			var a_info = {
@@ -25,14 +33,23 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 			}
 			return $http.post('/adminsite/room/'+data.room_id+'/availability', a_info);
 		},
-		bookingStep2 : function(data, quantity)
+		bookingStep2 : function(data, quantity, bookingId)
 		{
+
 			var booking_info = {
 				checkin : data.checkin,
 				checkout : data.checkout,
 				quantity : quantity,
 			}
-			return $http.post('/adminsite/room/'+data.room_id+'/step2', booking_info);
+			if(bookingId)
+			{
+				return $http.post('/adminsite/room/'+data.room_id+'/step2?bookingId='+bookingId, booking_info);
+			}
+			else
+			{
+				return $http.post('/adminsite/room/'+data.room_id+'/step2', booking_info);
+			}
+			
 		},
 		advanceSearch : function(data)
 		{
@@ -43,6 +60,10 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 				status : data.r_status
 			}
 			return $http.post('/adminsite/getbookinglist/search', query_info);
+		},
+		getBookingInfo : function(data)
+		{
+			return $http.post('/adminsite/getbookinginfo/'+data);
 		},
 		bookingStep3 : function(data, id)
 		{
@@ -62,6 +83,16 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 	loadBookingList();
 	$scope.roomSearch ='';
 	$scope.advs = [];
+	$scope.invoiceInfo = []; //invoice information
+	$scope.insufficientFund = false;
+	$scope.selected_invoiceInfo= null;
+	$scope.bookingInfo = 
+	{
+		bookingId : false,
+		rooms : [],
+		info : []
+	} //this variable contains rooms that has been booked.
+	$scope.pendingBookingId = null; //this field is
 	$scope.per_page = 10;
 	$scope.viewBooking = function(details){
 		$scope.displayBooking = angular.copy(details);
@@ -80,12 +111,69 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 	$scope.filterByBooking = function (booking) {
 		return $scope.filter[booking.status] || noFilter($scope.filter);
 	};
+	$scope.testarr  = [
+	{
+		name : 'test'
+	},
+	{
+		name:'test2'
+	}
+
+	]
+
+	$scope.$watch('invoiceInfo', function(newVal, oldVal)
+	{
+		if(newVal.paid != oldVal.paid)
+		{
+
+			$scope.invoiceInfo.change = newVal.paid - newVal.price;
+		}
+
+	},true);
+
+	$scope.proceedPayment = function()
+	{
+		$scope.loading = true;
+		bookingFactory.proceedPayment($scope.invoiceInfo).success(function(data)
+		{
+			if(data==1)
+			{
+				$timeout(function()
+				{
+					$scope.loading=false;
+					window.location.reload(true);
+				},500)
+			}else
+			{
+				$scope.insufficientFund = true;
+			}
+			
+		}).error();
+	}
 	$scope.saveCustomerInformation = function()
 	{
 		bookingFactory.bookingStep3($scope.customer, $scope.currentBooking).success(function(data)
 		{
-			$('newBooking').modal('hide');
-			window.location.reload();
+			$scope.loading = true;
+			$scope.displayform2 = false;
+			console.log($scope.bookingInfo, 'bookinginfo')
+			bookingFactory.getBookingInfo($scope.bookingInfo.bookingId).success(function(data)
+			{
+				$scope.invoiceInfo = angular.copy(data);
+				_.map($scope.invoiceInfo.reserved_room_grp, function(data)
+				{	
+
+				})
+				console.log($scope.invoiceInfo, 'details of invoice')
+			}).error();
+
+			$timeout(function()
+			{
+				$scope.loading= false;
+					$scope.displayform3 = true; //payment form
+				},500);
+			
+			
 		})
 	}
 	$scope.advs.startDate = moment().format('YYYY[-]MM[-]DD')
@@ -101,7 +189,6 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 				$scope.hideloading=true;
 				if(data!=0)
 				{
-					
 					var counter = $scope.booking.length;
 					var checkout = null;
 					var checkin = null;
@@ -121,27 +208,49 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 		}).error();
 		
 	}
+	$scope.$watch('anonymous', function(newVal, oldVal)
+	{
+		if(newVal)
+		{
+			$scope.customer =
+			{
+				firstname : 'n/a',
+				lastname : 'n/a',
+				address : 'n/a',
+				contact_no : 'n/a'
+			}
+		}
+	})
+
+	$scope.viewInvoice = function(data)
+	{
+		$scope.selected_invoiceInfo = angular.copy(data);
+		$('#invoice').modal('show');
+	}
 	$scope.newBookingModal = function()
 	{	
+		$scope.invoiceInfo = []; //invoice information
+		$scope.insufficientFund = false;
+		$scope.moreRooms = false;
 		$scope.currentBooking =null; //this will be used after creating a new booking
 		$scope.available = null; //
 		$scope.displayform=true; //this is for the first form
 		$scope.displayform2=false; //this is for the second form
+		$scope.displayform3 = false;
 		$scope.availability = {
 			checkin : moment().format('YYYY[-]MM[-]DD'),
-			checkout : moment().format('YYYY[-]MM[-]DD'),
+			checkout :  moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
 			display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
 		}
 		$scope.nights=1;  $scope.quantity = 1; $scope.availability.room_id = 0;
 		$scope.$watch('availability.checkin', function(newVal, oldVal){
 			if($scope.nights>1){
-				$scope.availability.checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.display_checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
+				$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
 
 			}else if($scope.nights==1){
 				$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.checkout = moment(newVal).format('YYYY[-]MM[-]DD');
-
+				$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
 			}
 
 		});
@@ -150,27 +259,54 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 				$scope.nights=1;
 			}
 			if(newVal>1){
-				$scope.availability.checkout = moment($scope.availability.checkin).add(newVal-1, 'days').format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout =moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
 				$scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
 				console.log($scope.availability.display_checkout);
 
 			}else if(newVal==1){
-				$scope.availability.checkout = moment($scope.availability.checkin).format('YYYY[-]MM[-]DD');
+				$scope.availability.checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
 				$scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
-
 			}
    // console.log($scope.availability.checkout)
 })
-
 		$('#newBooking').modal('show');
 	}
-	$scope.proceedStep2 = function()
+	$scope.addMoreRoom = function()
+	{
+
+		var bookedRooms = angular.copy($scope.bookingInfo.rooms);
+		var bookingId = $scope.bookingInfo.bookingId || false;
+		$scope.loading=true;
+		$scope.moreRooms = true; //this will hide some form fields
+		$scope.available = 5;
+		bookingFactory.bookingStep2($scope.availability, $scope.quantity, $scope.bookingInfo.bookingId).success(function(data)
+		{
+			bookedRooms.push(data.rooms);
+			$scope.bookingInfo = 
+			{
+				rooms : bookedRooms,
+				bookingId : data.booking_id
+			}
+		}).error();
+		$timeout(function()
+		{
+			$scope.loading=false;
+		},500);
+	}
+
+
+	$scope.executePayment = function()
+	{
+
+	}
+	$scope.publishBooking = function()
 	{
 		$scope.loading=true;
 		//this will proceed to customer information
-		bookingFactory.bookingStep2($scope.availability, $scope.quantity).success(function(data)
+		bookingFactory.bookingStep2($scope.availability, $scope.quantity, $scope.bookingInfo.bookingId).success(function(data)
 		{
-			$scope.currentBooking = angular.copy(data);
+			$scope.bookingInfo.bookingId = angular.copy(data.booking_id);
+			$scope.currentBooking = angular.copy(data.booking_id);
 			$timeout(function()
 			{
 				$scope.loading=false;
@@ -220,6 +356,7 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 			$('#updateBooking').modal('hide');
 		}).error();
 	}
+	
 	function loadBookingList(){
 		bookingFactory.getBookingList().success(function(data){
 			$timeout(function(){
@@ -247,12 +384,14 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 $scope.error = 1; //means something went wrong. probably network issues.
 })
 	}
+
 	$scope.checkAvailability = function(){
 		$scope.displayform = false;
 		$scope.reservation = null;
 		if($scope.availability.room_id!=0){
 			$scope.loading = true;
 			bookingFactory.checkAvailability($scope.availability, $scope.quantity).success(function(data){
+				console.log(data, 'data');
 				if(data.status==1){
 					console.log(data);
 					$scope.reservation = angular.copy(data);

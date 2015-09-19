@@ -5,7 +5,6 @@ bookingController
 @section('styles')
 
 <style type="text/css">
-	
 	.stepwizard-step p {
 		margin-top: 10px;
 	}
@@ -89,28 +88,25 @@ bookingController
 <div class="row" style='margin-top:30px'>
 	<div style='max-width:960px;margin:0 auto'>
 		<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-				<center>
+			<center>
 				<h2 style='font-family:"Oswald";float:right'>Please fill up the form.</h2>
 				<div class="clearfix"></div>
 				<small style='float:right'>You have choosen rooms(s)
-				@foreach(Session::get('reservation')['reservation_room'] as $rooms)
-				<span class="label label-primary" style='font-size:12px;'> {{ $rooms['room_details']['name'] }}({{ $rooms['quantity']}})</span>
-				@endforeach
-			for dates.</small>
-				<div class="clearfix"></div>
-				<small style='float:right'> You're check-in will be on <span style='color:red'> <?php echo date("D, d M Y", strtotime(Session::get('reservation')['checkin'])); ?> </span> <br>and you will be checkout <br> on <span style='color:red'> <?php echo date("D, d M Y", strtotime(Session::get('reservation')['display_checkout'])); ?> </span> by 12:00 NN.	</small>
+					@foreach(Session::get('reservation')['reservation_room'] as $rooms)
+					<span class="label label-primary" style='font-size:12px;'> {{ $rooms['room_details']['name'] }}({{ $rooms['quantity']}})</span>
+					@endforeach
+					for dates.</small>
+					<div class="clearfix"></div>
+					<small style='float:right'> You're check-in will be on <span style='color:red'> <?php echo date("D, d M Y", strtotime(Session::get('reservation')['checkin'])); ?> </span> <br>and you will be checkout <br> on <span style='color:red'> <?php echo date("D, d M Y", strtotime(Session::get('reservation')['display_checkout'])); ?> </span> by 12:00 NN.	</small>
 
-			</center>
+				</center>
 			</div>
 			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style='border-left:1px solid #d8d8d8;margin-top:20px'>
-
 				<div class="row">
-
 					<div class="col-xs-6">
 						<address>
 							<strong>Billed To:</strong><br>
 							{{ Session::get('reservation.customerinformation')['firstname'] }} {{ Session::get('reservation.customerinformation')['lastname'] }}<br>
-
 						</address>
 						<address>
 							<strong>Customer Information:</strong><br>
@@ -121,9 +117,7 @@ bookingController
 							<p>Email Address:  {{ Session::get('reservation.customerinformation')['email'] }} </p>
 						</address>
 					</div>
-
 				</div>
-
 				<div class="row">
 					<div class="col-md-12">
 						<div class="panel panel-default">
@@ -159,15 +153,9 @@ bookingController
 												<td class="text-right">{{ $rooms['room_details']['price'] * $rooms['quantity'] * Session::get('reservation.nights') }}</td>
 											</tr>
 											@endforeach
-											<?php
-											$tax = $total *0.12;
-											$total=$total+$tax;
-											?>
-											<tr style='border-top:2px solid black'>
-												<td colspan=4 style='text-align:right;font-weight:bold'>Tax(12%)</td>
-												<td style='text-align:right'>{{ $tax }}</td>
-											</tr>
-											<tr style='border-top:5px solid black'>
+											
+
+											<tr style='border-top:2px solid #777'>
 												<td colspan=4 style='text-align:right;font-weight:bold'>Total</td>
 												<td style='text-align:right'>{{ $total }}</td>
 											</tr>
@@ -180,7 +168,7 @@ bookingController
 									Agree to terms and condition.
 								</label>
 								<form action='{{ URL::to("booking/payment") }}' method="POST">
-								<button type="submit" class="btn btn-large btn-block btn-primary" ng-disabled='terms==false'>Proceed to checkout (via Paypal)</button>
+									<button type="submit" class="btn btn-large btn-block btn-primary" ng-disabled='terms==false'>Proceed to checkout (via Paypal)</button>
 								</form>
 								<div class="checkbox">
 
@@ -191,13 +179,11 @@ bookingController
 				</div>
 			</div>
 		</div>
-
 	</div>
 </div>
 @stop
 @section('scripts')
 <script type="text/javascript">
-	
 	angular.module('giligansApp', [], function($interpolateProvider){
 		$interpolateProvider.startSymbol('[[');
 		$interpolateProvider.endSymbol(']]');

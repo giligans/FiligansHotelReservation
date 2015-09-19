@@ -22,7 +22,7 @@ arrivalController
 					</tr>
 					<tr>
 						<td>Check In: </td>
-						<td ng-bind='displayBooking.check_in.date'> </td>
+						<td ng-bind='displayBooking.checkindate'> </td>
 					</tr>
 					<tr>
 						<td>Nights</td>
@@ -31,17 +31,18 @@ arrivalController
 					<tr>
 						<td>Room Type</td>
 						<td>
-								<span class="label label-primary" ng-repeat='r in displayBooking.reserved_room' ng-bind='r.room.room_details.name' style='margin:3px;'></span>
+							<span class="label label-primary" ng-repeat='r in displayBooking.reserved_room' ng-bind='r.room.room_details.name' style='margin:3px;'></span>
 						</td>
 					</tr>
 					<tr>
 						<td>Status</td>
 						<td>
 							<span class="label label-success" ng-show='displayBooking.status==1'>Paid</span>
-
 							<span class="label label-warning" ng-show='displayBooking.status==0'>Pending</span>
-
 							<span class="label label-danger" ng-show='displayBooking.status==5'>Cancelled</span>
+							<span class="label label-danger" ng-show='displayBooking.status==2'>Occupied</span>
+							<span class="label label-info" ng-show='displayBooking.status==4'>Preparing</span>
+							<span class="label label-primary" ng-show='displayBooking.status==3'>Ended</span>
 						</td>
 					</tr>
 					<tr>
@@ -92,16 +93,19 @@ arrivalController
 					<option value="0">Pending</option>
 					<option value="1">Paid</option>
 					<option value="5">Cancelled</option>
+					<option value="2">Occupied</option>
+					<option value="4" ng-show='displayBooking.status==2 || displayBooking.status==1'>Preparing</option>
+					<option value="3" ng-show='displayBooking.status==2 || displayBooking.status==4'>Ended</option>
 				</select>
-			<div class="clearfix" style='margin:10px;'>
-			</div>
-			<div ng-show='editBooking.status==5'>
-			Remarks: <textarea class='form-control'ng-model='editBooking.cancelled_remarks' ></textarea>
-			</div>
+				<div class="clearfix" style='margin:10px;'>
+				</div>
+				<div ng-show='editBooking.status==5'>
+					Remarks: <textarea class='form-control'ng-model='editBooking.cancelled_remarks' ></textarea>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='updateBooking.status==5 && editBooking.cancelled_remarks==null || editBooking.cancelled_remarks==""'>Save changes</button>
+				<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='updateBooking.status==5 && editBooking.cancelled_remarks==null || editBooking.cancelled_remarks==""'>Save changes</button>
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
@@ -146,16 +150,16 @@ arrivalController
 					<span ng-bind='b.firstname'></span>
 					<span ng-bind='b.lastname'></span>
 				</td>
-				<td>H23SD</td>
+				<td ng-bind='b.reservation_code'></td>
 				<td ng-bind='b.check_in.date'></td>
 				<td ng-bind='b.nights'></td>
 				<td>
-					
-					<span class="label label-success" ng-show='b.status==1'>Paid</span>
-					
-					<span class="label label-warning" ng-show='b.status==0'>Pending</span>
-					
-					<span class="label label-danger" ng-show='b.status==5'>Cancelled</span>
+						<span class="label label-success" ng-show='b.status==1'>Paid</span>
+							<span class="label label-warning" ng-show='b.status==0'>Pending</span>
+							<span class="label label-danger" ng-show='b.status==5'>Cancelled</span>
+							<span class="label label-danger" ng-show='b.status==2'>Occupied</span>
+							<span class="label label-info" ng-show='b.status==4'>Preparing</span>
+							<span class="label label-primary" ng-show='b.status==3'>Ended</span>
 					
 				</td>
 				<td><div class="btn-group">

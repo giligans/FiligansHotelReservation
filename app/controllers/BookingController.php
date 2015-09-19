@@ -5,7 +5,7 @@ class BookingController extends \BaseController {
 	* GET /booking
 	* 
 	* @return Response
-	*/
+	*/	
 	public function index()
 	{
 		if(Session::has('checkin') && Session::has('checkout') && Session::has('reserved_room_id')){
@@ -45,6 +45,26 @@ class BookingController extends \BaseController {
 	*
 	* @return Response
 	*/
+	/*walk in payment*/
+	/*cash payment only*/
+	public function payment($id)
+	{
+		$i = Input::all();
+		$b = Booking::where('id', $id)->first();
+		if(!empty($b))
+		{
+			if($i['paid'] >= $b->price)
+			{
+				$b->paid = $i['paid'];
+				$b->status = 1;
+				$b->save();
+				return 1;
+			}else
+			{
+				return 0;
+			}
+		}
+	}
 	public function searchList()
 	{
 		$i = Input::all();
@@ -53,7 +73,16 @@ class BookingController extends \BaseController {
 		->orWhereRaw('"'.$i["startdate"].'" between check_in and check_out')
 		->orWhereRaw('"'.$i["enddate"].'" between check_in and check_out')
 		->where('status','!=',5)->get();
-		return $query;
+		return $query;	
+	}
+	
+	public function searchBooking($id)
+	{
+		$query = Booking::with('reservedRoom_grp.room.roomDetails')->where('id', $id)->first();
+		if(!empty($query))
+		{
+			return $query;
+		}
 	}
 	
 	public function thisYearList()
@@ -109,7 +138,7 @@ class BookingController extends \BaseController {
 	}
 
 	public function bookingList(){
-		$booking_recent = Booking::with('reservedRoom.room.roomDetails')->get();
+		$booking_recent = Booking::with('reservedRoom_grp.room.roomDetails')->get();
 		//$booking_recent = ReservedRoom::with('room.roomDetails')->get();
 		if(!empty($booking_recent)){
 			return $booking_recent;
@@ -117,6 +146,7 @@ class BookingController extends \BaseController {
 			return '0';
 		}
 	}
+
 	public function create()
 	{
 		//

@@ -12,7 +12,8 @@
 		"paypal/rest-api-sdk-php": "*",
 		"fitztrev/laravel-html-minify": "~1.0",
 		"torann/currency": "0.1.*",
-		"iron-io/iron_mq": "~1.5"
+		"iron-io/iron_mq": "~1.5",
+		"barryvdh/laravel-debugbar": "~1.8"
 		
 		},
 		"require-dev": {

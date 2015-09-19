@@ -34,26 +34,24 @@ indexRoomCtrl
 		<thead>
 			<tr>
 				<th>#</th>
-			
 				<th>Name</th>
-				<th>Quantity</th>
-				<th>Max <br>Adult</th>
+				<th>Qty</th>
 				<th>Available</th>
-				<th>Max Children</th>
+				<th>Max <br>Adult</th>
+				<th style='text-align:center'>Max <br>Children</th>
 				<th>Price</th>
 				<th>Action</th>
-				
 			</tr>
 		</thead>
 		<tbody>
+
 			<tr ng-repeat='r in rooms'>
 				<td ng-bind='$index+1'></td>
 				<td ng-bind='r.name'></td>
 				<td ng-bind='r.room_qty.length'></td>
-			
+				<td ng-bind='r.available'></td>
 				<td ng-bind='r.max_adults'></td>
-				<td></td>
-			<td ng-bind='r.max_children'></td>
+				<td ng-bind='r.max_children'></td>
 				<td ng-bind='r.price | currency:"₱"'></td>
 				<td>
 					<a class="btn btn-xs btn-warning" href='/adminsite/room/[[ r.id ]]/update'><span class="glyphicon glyphicon glyphicon-edit"></a>

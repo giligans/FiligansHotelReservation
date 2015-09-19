@@ -1,4 +1,5 @@
 <?php
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -8,13 +9,15 @@
 | It's a breeze. Simply tell Laravel the URIs it should respond to
 | and give it the Closure to execute when that URI is requested.
 |
-
 */
+
 Route::get('/', function()
-	{	$cpage = 'home';
+{
+	$cpage = 'home';
 	/*return View::make('clientview.index', compact('cpgae'));*/ // this will output the first layout
 	return View::make('clientview2.index', compact('cpage')); // this will output the second layout
 });
+
 //Route::get('booking' ,'BookingController@index');
 Route::get('contact', function(){
 	$cpage = 'contact';
@@ -49,6 +52,8 @@ Route::get('booking', function(){
 
 Route::post('booking/step1', function(){
 	$i = Input::all();
+
+	//return Session::get('reservation');
 	if(isset($i['checkin']) && isset($i['checkout'])){
 			//return $i;
 		Session::put('reservation.checkin', $i['checkin']);
@@ -62,8 +67,8 @@ Route::get('booking/step2', function(){
 	$cpage = 'booking.step2';
 	if(Session::has('reservation.checkin') && Session::has('reservation.checkout')){
 		$i = [];
-		$i['checkin'] = Session::get('reservation.checkin');
-		$i['checkout'] = Session::get('reservation.checkout');
+		$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
+		$i['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
 			//return $i;
 		$available_rooms = 0;
 		$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
@@ -72,10 +77,14 @@ Route::get('booking/step2', function(){
 				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-			})->where('status','!=',5);
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
 		}))->get();
 			//eturn $room1;
 	}else{
+
 	}
 	//return $room;
 	return View::make('clientview2.booking.step2', compact('cpage','room'));
@@ -96,20 +105,21 @@ Route::post('booking/step2/direct', function(){
 	return Redirect::to('booking/step3');
 });
 
-
-
 Route::post('booking/step2', function(){
+
 	$i = Input::all();
 	$x = [];
 	$room_reservation['reservation_room'] = [];
-	$room_reservation['checkin'] = Session::get('reservation.checkin');
-	$room_reservation['checkout'] = Session::get('reservation.checkout');
+	$room_reservation['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
+	$room_reservation['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
 	$room_reservation['display_checkout'] = Session::get('reservation.display_checkout');
+
 	foreach($i['rooms'] as $r){
 		if($r['quantity']>0){
 			array_push($room_reservation['reservation_room'], $r);
 		}
 	}
+
 	$count = 0;
 	$rooms = [];
 	foreach($room_reservation['reservation_room'] as $room){
@@ -129,19 +139,24 @@ Route::get('booking/step3', function(){
 });
 
 Route::post('booking/step3', function(){
+
 	$i = Input::all();
 	Session::put('reservation.customerinformation', $i);
 		//return Session::get('reservation.customerinformation')['firstname'];
 	return Redirect::to('booking/step4');
+
 });
 
 Route::get('booking/step4', function(){
+	
 	$ci = new Carbon(Session::get('reservation')['checkin']);
-	$co = new Carbon(Session::get('reservation')['display_checkout']);	
-	$diff = $co->diff($ci)->days;
+	$co = new Carbon(Session::get('reservation')['checkout']);
+	$diff = $co->addMinutes(1)->diff($ci)->days;
+	
 	Session::put('reservation.nights', $diff);
 	$cpage = 'booking.step4';
 	return View::make('clientview2.booking.step4', compact('cpage'));
+
 });
 
 Route::post('booking/payment', array(
@@ -149,11 +164,11 @@ Route::post('booking/payment', array(
 	'uses' => 'PaypalController@postPayment',
 	));
 // this is after make the payment, PayPal redirect back to your site
+
 Route::get('payment/status', array(
 	'as' => 'payment.status',
 	'uses' => 'PaypalController@getPaymentStatus',
 	));
-
 
 Route::post('booking/step5', function()
 {
@@ -161,10 +176,9 @@ Route::post('booking/step5', function()
 	$tax = null;
 	$total_price = null;
 	$i = []; 
-	$i['checkin'] = Session::get('reservation')['checkin'];
-	$i['checkout'] = Session::get('reservation')['checkout'];
+	$i['checkin'] = Session::get('reservation')['checkin'].' 12:00:00';
+	$i['checkout'] = Session::get('reservation')['checkout']. '11:59:00';
 	$customerinformation = Session::get('reservation.customerinformation');
-
 	$count = 0; //for test
 	$count1 = 0; //for test
 	$booked_room = []; //all picked rooms from available rooms
@@ -177,6 +191,7 @@ Route::post('booking/step5', function()
 	$new_booking->check_in = $i['checkin'];
 	$new_booking->check_out = $i['checkout'];
 	$new_booking->save();
+
 	foreach(Session::get('reservation')['reservation_room'] as $rooms)
 	{
 		$count++;
@@ -188,7 +203,10 @@ Route::post('booking/step5', function()
 				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-			})->where('status','!=',5);
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
 
 		}))->where('room_id', $room_id)->get();
 		foreach($room_qty as $available)
@@ -202,9 +220,7 @@ Route::post('booking/step5', function()
 			array_push($booked_room, $available_rooms[$counter]);
 		}
 	} //end of foreach
-	
 	$total = 0;
-
 	if(!empty($booked_room))
 	{
 		foreach($booked_room as $b)
@@ -218,14 +234,12 @@ Route::post('booking/step5', function()
 			$reserveRoom->price = $total;
 			/*$reserveRoom->check_in = $i['checkin'];
 			$reserveRoom->check_out = $i['checkout'];
-			
 			$reserveRoom->firstname = $customerinformation['firstname'];
 			$reserveRoom->lastname = $customerinformation['lastname'];
 			$reserveRoom->address = $customerinformation['address'];
 			$reserveRoom->contact_number = $customerinformation['contact_no'];
 			$reserveRoom->email_address = $customerinformation['email'];*/
 			$reserveRoom->save();
-
 		}
 	}
 	$tax = $total * 0.12;
@@ -286,7 +300,10 @@ Route::post('room/{id}/availability', function($id){
 			->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
 			->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
 			->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-		})->where('status','!=',5);
+		})->where(function($query3)
+		{
+			$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+		});
 	}))->get();
 	
 	foreach($room as $r)
@@ -405,6 +422,7 @@ Route::get('logout', function()
 	Auth::logout();
 	return Redirect::to('/login');
 });
+
 Route::post('login', function(){
 	$i = Input::all();
 	if (Auth::attempt(array('username' => $i['username'], 'password' => $i['password'])))
@@ -472,14 +490,16 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 
 	Route::get('getbookinglist', 'BookingController@bookingList');
 	Route::post('getbookinglist/search', 'BookingController@searchList');
+	Route::post('getbookinginfo/{id}', 'BookingController@searchBooking');
 	Route::post('booking/{id}/update', 'BookingController@update');
+	Route::post('booking/{id}/payment', 'BookingController@payment');
 	Route::post('currentbooking/save', function()
 	{
 		$i = Input::all();
-		foreach($i['booking_id'] as $id)
-		{
-			$r = ReservedRoom::where('id', $id)->first();
-			if(!empty($r)) {
+		$reservation = ReservedRoom::where('booking_id', $i['booking_id'])->get();
+		if(count($reservation) > 0) {
+			foreach($reservation as $r)
+			{
 				$r->firstname = $i['firstname'];
 				$r->lastname = $i['lastname'];
 				$r->address = $i['address'];
@@ -489,7 +509,6 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 				{
 
 				}
-
 			}
 		}
 		return $i;

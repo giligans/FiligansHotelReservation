@@ -9,7 +9,7 @@
 
 	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 	{{ HTML::style('admin/asset/css/spacelab.css') }}
-<!-- 	<link rel="stylesheet" type="text/css" href="http://bootswatch.com/spacelab/bootstrap.min.css"> -->
+	<!-- 	<link rel="stylesheet" type="text/css" href="http://bootswatch.com/spacelab/bootstrap.min.css"> -->
 
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
 	<script src="http://lipis.github.io/bootstrap-sweetalert/lib/sweet-alert.js"></script>
@@ -115,6 +115,12 @@
 						class="active"
 						@endif
 						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon-credit-card"></span> Room Management</a></li>
+						<li
+						@if($cpage == 'discount')
+						class="discounts"
+						@endif
+						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon-credit-card"></span> Discounts </a></li>
+
 						<li
 						@if($cpage == 'booklst')
 						class="active"
