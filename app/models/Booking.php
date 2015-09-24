@@ -5,6 +5,8 @@ class Booking extends \Eloquent {
 	protected $appends = ['datecreated','checkindate','checkoutdate', 'nights','change'];
 
 
+
+	
 	public function getChangeAttribute()
 	{
 		return 0;
@@ -18,7 +20,7 @@ class Booking extends \Eloquent {
 	public function getNightsAttribute()
 	{
 		$ci = $this->check_in;
-		$co = $this->check_out->addMinutes(1);
+		$co = $this->check_out->addMinutes(2);
 		$nights = $ci->diffInDays($co);
 		return $nights;
 	}
@@ -42,7 +44,7 @@ class Booking extends \Eloquent {
 
 	public function reservedRoom_grp()
 	{
-		return $this->hasMany('ReservedRoom','booking_id','id')->select(DB::raw('*, count(*) as quantity'))->groupBy('room_type');
+		return $this->hasMany('ReservedRoom','booking_id','id')->select(DB::raw('*, sum(price) as price, count(*) as quantity'))->groupBy('room_type')->groupBy('booking_id');
 	}
 
 	public function getCheckOutAttribute($value){

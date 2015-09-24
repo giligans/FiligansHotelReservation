@@ -438,19 +438,40 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 	{
 		return View::make('template.pagination');
 	});
+	
+
+	Route::get('customer', 'CustomersController@index');
+	Route::get('customer/search/{search}', 'CustomersController@searchCustomer');
+	Route::post('customer/create', 'CustomersController@store');
+	Route::get('discount', 'DiscountsController@index');
+	Route::get('discount/type', 'DiscountsController@listDiscountType');
+	Route::get('discount/customers', 'DiscountController@listCustomer');
+	Route::get('discount/customer-discounts', 'DiscountController@makeCustomerDiscounts');
+
+	Route::post('discount/type/create', 'DiscountsController@createType');
+	Route::post('discount/type/create', 'DiscountsController@makeDiscountType');
+	Route::post('discount/customers/create', 'DiscountsController@makeCustomers');
+	Route::post('duscount/customers-discounts/create', 'DiscountsController@makeCustomerDiscount');
+
+
+
 	/*FOR PULLING DATA VIA AJAX*/
+
 	Route::get('activity/logs', 'ActivitiesController@logs');
 	Route::get('dashboard/success_booking/ajax', 'DashboardController@ajax_todayBookingSuccess');
 	Route::get('dashboard/cancelled_booking/ajax', 'DashboardController@ajax_todayBookingCancelled');
 	Route::get('dashboard/pending_booking/ajax', 'DashboardController@ajax_todayBookingPending');
 	Route::get('dashboard/arrival/ajax', 'DashboardController@ajax_todayArrival');
-	Route::get('dashboard/departure/ajax', 'DashboardController@ajax_todayDeparture');
-	
+	Route::get('dashboard/departure/aPassword::sendReminder(user, token, callback)jax', 'DashboardController@ajax_todayDeparture');
+	Route::get('dashboard/occupied_booking/ajax', 'DashboardController@ajax_todayBookingOccupied');
+	Route::get('dashboard/preparing_booking/ajax', 'DashboardController@ajax_todayBookingPreparing');
 	Route::get('dashboard/success_booking', 'DashboardController@todayBookingSuccess');
 	Route::get('dashboard/cancelled_booking', 'DashboardController@todayBookingCancelled');
 	Route::get('dashboard/pending_booking', 'DashboardController@todayBookingPending');
 	Route::get('dashboard/arrival', 'DashboardController@todayArrival');
 	Route::get('dashboard/departure', 'DashboardController@todayDeparture');
+	Route::get('dashboard/occupied', 'DashboardController@todayBookingOccupied');
+	Route::get('dashboard/preparing', 'DashboardController@todayBookingPreparing');
 
 	Route::get('reservation/list/ajax', 'BookingController@thisYearList');
 	Route::get('activity', 'ActivitiesController@index');

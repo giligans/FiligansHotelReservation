@@ -3,7 +3,7 @@
 homeController
 @stop
 @section('styles')
-<link rel="stylesheet" href="//frontend.reklamor.com/fancybox/jquery.fancybox.css" media="screen">
+{{ HTML::style('asset/styles/jquery.fancybox.css') }}
 <style type="text/css">
 	
 	.heading::first-letter {
@@ -38,85 +38,85 @@ homeController
 
 
 
-	<div class="row">
-		<div class='list-group gallery'>
-            <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/1.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/1.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
+<div class="row">
+  <div class='list-group gallery'>
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/1.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/1.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
 
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/2.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/2.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
-
-
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/3.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/3.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/2.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/2.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
 
 
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/4.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/4.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/3.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/3.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
 
 
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/5.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/5.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/4.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/4.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
 
 
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/6.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/6.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/5.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/5.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
 
-              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/7.jpg') }}">
-                    <img class="img-responsive" alt="" src="{{ URL::to('image/large/7.jpg') }}" />
-                    <div class='text-right'>
-                        <small class='text-muted'>Image Title</small>
-                    </div> <!-- text-right / end -->
-                </a>
-            </div> <!-- col-6 / end -->
 
-       
-        </div> <!-- list-group / end -->
-	</div> <!-- row / end -->
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/6.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/6.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
+
+    <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+        <a class="thumbnail fancybox" rel="ligthbox" href="{{ URL::to('image/full_image/7.jpg') }}">
+            <img class="img-responsive" alt="" src="{{ URL::to('image/large/7.jpg') }}" />
+            <div class='text-right'>
+                <small class='text-muted'>Image Title</small>
+            </div> <!-- text-right / end -->
+        </a>
+    </div> <!-- col-6 / end -->
+
+
+</div> <!-- list-group / end -->
+</div> <!-- row / end -->
 
 
 
 @stop
 @section('scripts')
 
-<script src="//frontend.reklamor.com/fancybox/jquery.fancybox.js"></script>
+{{ HTML::script('asset/scripts/client2/jquery.fancybox.js') }}
 <script type="text/javascript">
 
 	$(document).ready(function(){

@@ -32,7 +32,7 @@ return array(
 	| ahead and set this to a sensible default for you out of the box.
 	|
 	*/
-	'timezone' => 'UTC',
+	'timezone' => 'Asia/Hong_Kong',
 	/*
 	|--------------------------------------------------------------------------
 	| Application Locale Configuration
@@ -109,7 +109,7 @@ return array(
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Fitztrev\LaravelHtmlMinify\LaravelHtmlMinifyServiceProvider',
 		'Torann\Currency\CurrencyServiceProvider',
-
+		'Cviebrock\EloquentSluggable\SluggableServiceProvider',
 		),
 	/*
 	|--------------------------------------------------------------------------

@@ -59,7 +59,7 @@ class RoomController extends \BaseController {
 	{
 		$i = Input::all();
 		$i['checkin'] = $i['checkin'].' 12:00:00';
-		$i['checkout'] = $i['checkout'].' 11:59:00';
+		$i['checkout'] = $i['checkout'].' 11:59:59';
 		$available_rooms = 0;
 		$room1= [];
 		//$roomDetails = Room::where('id')->first();
@@ -74,7 +74,7 @@ class RoomController extends \BaseController {
 				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
 			});
 		}))->get();
-
+		return $room;
 		foreach($room as $r)
 		{
 		//$available_rooms = $r;
@@ -235,10 +235,8 @@ class RoomController extends \BaseController {
 
 		}
 		
-
 		foreach($booked_room as $b)
 		{
-
 			$ci = new Carbon($i['checkin']);
 			$co = new Carbon($i['checkout']);
 			$total_nights = $co->diff($ci)->days;
@@ -364,7 +362,7 @@ class RoomController extends \BaseController {
 		$cpage = 'room';
 		$today = Date('Y-m-d H:i:s');
 		$tomorrow = new DateTime('tomorrow');
-		$tomorrow = $tomorrow->format('Y-m-d').' 12:00:00';
+		$tomorrow = $tomorrow->format('Y-m-d').' 11:59:00';
 		
 		$room = Room::with(array('roomQty.roomReserved' => function($query) use($today, $tomorrow){
 			$query->where(function($query2) use($today, $tomorrow){

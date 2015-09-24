@@ -1,7 +1,7 @@
 @extends('layout.master2')
 @section('styles')
 <style type="text/css">
-	
+
 	.stepwizard-step p {
 		margin-top: 10px;
 	}
@@ -41,8 +41,6 @@
 		line-height: 1.428571429;
 		border-radius: 15px;
 	}
-
-
 </style>
 @stop
 @section('content')
@@ -72,6 +70,7 @@
 		</div>
 	</div>
 </div>
+
 <div class="row" style='margin-top:30px'>
 	<div style='max-width:960px;margin:0 auto'>
 		<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
@@ -84,14 +83,14 @@
 			</center>
 		</div>
 		<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style='border-left:1px solid #d8d8d8;margin-top:20px'>
-<CENTER>
-<H4>Your Reservation Code is</H4>
-<h1 style='font-family:"Oswald"'> {{ Session::get('code') }}</h1>
-</CENTER>
+			<CENTER>
+				<H4>Your Reservation Code is</H4>
+				<h1 style='font-family:"Oswald";text-transform:uppercase'> {{ Session::get('code') }}</h1>
+			</CENTER>
 
-<P style='text-align:center;margin-top:20px'>You can also check your email for the Reservation Code. If you have any inquiries, feel free to call us on 8700 or visit our <a href='#'>Contact</a> page. </P>
-		
-<h3 style='font-family:Open Sans;text-align:center'>Thank you and have a nice day!</h3>
+			<P style='text-align:center;margin-top:20px'>You can also check your email for the Reservation Code. If you have any inquiries, feel free to call us on 8700 or visit our <a href='#'>Contact</a> page. </P>
+
+			<h3 style='font-family:Open Sans;text-align:center'>Thank you and have a nice day!</h3>
 		</div>
 	</div>
 

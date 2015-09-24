@@ -115,11 +115,18 @@
 						class="active"
 						@endif
 						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon-credit-card"></span> Room Management</a></li>
+						
+						<li
+						@if($cpage == 'Customers')
+						class="active"
+						@endif
+						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon glyphicon-certificate"></span> Customers </a></li>
+
 						<li
 						@if($cpage == 'discount')
-						class="discounts"
+						class="active"
 						@endif
-						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon-credit-card"></span> Discounts </a></li>
+						><a href="{{ URL::to('adminsite/discount') }}">	<span class="glyphicon glyphicon glyphicon glyphicon-star"></span> Discounts </a></li>
 
 						<li
 						@if($cpage == 'booklst')

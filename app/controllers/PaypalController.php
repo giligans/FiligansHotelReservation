@@ -94,6 +94,7 @@ $payment->setIntent('Sale')
 ->setPayer($payer)
 ->setRedirectUrls($redirect_urls)
 ->setTransactions(array($transaction));
+
 try {
     $payment->create($this->_api_context);
 } catch (\PayPal\Exception\PPConnectionException $ex) {
@@ -105,6 +106,7 @@ try {
         die('Some error occur, sorry for inconvenient');
     }
 }
+
 foreach($payment->getLinks() as $link) {
     if($link->getRel() == 'approval_url') {
         $redirect_url = $link->getHref();
@@ -141,59 +143,59 @@ public function getPaymentStatus()
     $result = $payment->execute($execution, $this->_api_context);
     /*echo '<pre>';print_r($result);echo '</pre>';exit; // DEBUG RESULT, remove it later*/
 if ($result->getState() == 'approved') { // payment made
-   // $tax = null;
+    // $tax = null;
     $total_price = null;
     $i = [];
     $i['checkin'] = Session::get('reservation')['checkin']. '12:00:00';
     $i['checkout'] = Session::get('reservation')['checkout']. '11:59:00';
     $customerinformation = Session::get('reservation.customerinformation');
-$count = 0; //for test
-$count1 = 0; //for test
-$booked_room = []; //all picked rooms from available rooms
-$new_booking = new Booking;
-$new_booking->firstname = $customerinformation['firstname'];
-$new_booking->lastname = $customerinformation['lastname'];
-$new_booking->address = $customerinformation['address'];
-$new_booking->contact_number = $customerinformation['contact_no'];
-$new_booking->email_address = $customerinformation['email'];
-$new_booking->check_in = $i['checkin'];
-$new_booking->check_out = $i['checkout'];
-$new_booking->payment_type= 'paypal';
-$new_booking->save();
-foreach(Session::get('reservation')['reservation_room'] as $rooms)
-{
-    $count++;
-    $room_id = $rooms['room_details']['id'];
-    $available_rooms = [];
-    $room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
-        $query->where(function($query2) use ($i, $room_id){
-            $query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
-            ->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
-            ->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
-            ->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-        })->where(function($query3)
-        {
-            $query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
-        });
-    }))->where('room_id', $room_id)->get();
-
-    foreach($room_qty as $available)
+    $count = 0; //for test
+    $count1 = 0; //for test
+    $booked_room = []; //all picked rooms from available rooms
+    $new_booking = new Booking;
+    $new_booking->firstname = $customerinformation['firstname'];
+    $new_booking->lastname = $customerinformation['lastname'];
+    $new_booking->address = $customerinformation['address'];
+    $new_booking->contact_number = $customerinformation['contact_no'];
+    $new_booking->email_address = $customerinformation['email'];
+    $new_booking->check_in = $i['checkin'];
+    $new_booking->check_out = $i['checkout'];
+    $new_booking->payment_type= 'paypal';
+    $new_booking->save();
+    foreach(Session::get('reservation')['reservation_room'] as $rooms)
     {
-        if($available->roomReserved== '[]')
+        $count++;
+        $room_id = $rooms['room_details']['id'];
+        $available_rooms = [];
+        $room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
+            $query->where(function($query2) use ($i, $room_id){
+                $query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+                ->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+                ->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+                ->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+            })->where(function($query3)
+            {
+                $query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+            });
+        }))->where('room_id', $room_id)->get();
+
+        foreach($room_qty as $available)
         {
-            array_push($available_rooms, $available);
+            if($available->roomReserved== '[]')
+            {
+                array_push($available_rooms, $available);
+            }
         }
-    }
-    for($counter = 0; $counter<$rooms['quantity']; $counter++){
-        array_push($booked_room, $available_rooms[$counter]);
-    }
+        for($counter = 0; $counter<$rooms['quantity']; $counter++){
+            array_push($booked_room, $available_rooms[$counter]);
+        }
 } //end of foreach
 
 $total = 0;
 if(!empty($booked_room))
 {
     foreach($booked_room as $b)
-    {
+    {   
         $roomprice = $b->roomPrice->price * Session::get('reservation.nights');
 
         $total += $b->roomPrice->price * Session::get('reservation.nights');
@@ -202,6 +204,7 @@ if(!empty($booked_room))
         $reserveRoom = new ReservedRoom;
         $reserveRoom->booking_id = $new_booking->id;
         $reserveRoom->room_id = $b->id;
+        $reserveRoom->room_type = $b->room_id;
         $reserveRoom->price = $roomprice;
         $reserveRoom->check_in = $i['checkin'];
         $reserveRoom->check_out = $i['checkout'];
@@ -220,7 +223,7 @@ $new_booking->price = $total;
 $new_booking->paid = $total;
 $new_booking->status=1;
 $date = date('Ymd');
-$code = Str::random(5).$date;
+$code = strtolower(Str::random(5).$date);
 $new_booking->code = $code;
 $new_booking->save();
 Session::forget('reservation');
