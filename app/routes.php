@@ -11,6 +11,7 @@
 |
 */
 
+
 Route::get('/', function()
 {
 	$cpage = 'home';
@@ -65,6 +66,7 @@ Route::post('booking/step1', function(){
 
 Route::get('booking/step2', function(){
 	$cpage = 'booking.step2';
+	$room = null;
 	if(Session::has('reservation.checkin') && Session::has('reservation.checkout')){
 		$i = [];
 		$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
@@ -86,7 +88,8 @@ Route::get('booking/step2', function(){
 	}else{
 
 	}
-	//return $room;
+
+
 	return View::make('clientview2.booking.step2', compact('cpage','room'));
 });
 
@@ -440,6 +443,10 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 	});
 	
 
+	Route::get('monitoring', 'DashboardController@liveMonitoring');
+	Route::get('monitoring/ajax', 'DashboardController@ajaxLiveMonitoring');
+	Route::get('todaystatistics/ajax', 'DashboardController@ajaxTodayStatistics');
+	
 	Route::get('customer', 'CustomersController@index');
 	Route::get('customer/search/{search}', 'CustomersController@searchCustomer');
 	Route::post('customer/create', 'CustomersController@store');
@@ -450,8 +457,7 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 
 	Route::post('discount/type/create', 'DiscountsController@createType');
 	Route::post('discount/type/create', 'DiscountsController@makeDiscountType');
-	Route::post('discount/customers/create', 'DiscountsController@makeCustomers');
-	Route::post('duscount/customers-discounts/create', 'DiscountsController@makeCustomerDiscount');
+	Route::post('discount/customers-discounts/create', 'DiscountsController@makeCustomerDiscount');
 
 
 

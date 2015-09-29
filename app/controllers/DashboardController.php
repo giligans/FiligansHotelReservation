@@ -44,7 +44,7 @@ class DashboardController extends \BaseController {
 			$query->where('check_in','like', "%$today%");
 		})->where('status', 1)->get();
 		
-		$ended_today = Booking::where('updated_at','like', "%$today%")->where(function($query) use ($today)
+		$ended_today = Booking::where(function($query) use ($today)
 		{
 			$query->where('status', 3)->orWhere('check_out', 'like', "%$today%" );
 		})->get();
@@ -84,7 +84,7 @@ class DashboardController extends \BaseController {
 		$success_bookings = [];
 		foreach($today_stats as $stats)
 		{
-				
+
 			array_push($success_bookings, $stats);
 
 		//return 'hey';
@@ -94,93 +94,59 @@ class DashboardController extends \BaseController {
 		return $success_bookings;
 	}
 	
-	public function ajax_todayBookingPending()
+
+	public function liveMonitoring()
 	{
-		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('created_at','like', "%$today%")->where('status','0')->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		
-		foreach($today_stats as $stats)
-		{
-			
-			array_push($bookings, $stats);
-			
-		}
-		return $bookings;
-	}
-	public function ajax_todayBookingOccupied()
-	{
-		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query1) use ($today)
-		{
-			$query1->where('created_at','like', "%$today%")->orWhere('check_out','like',"%$today%");
-		})->where('status',2)->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		
-		foreach($today_stats as $stats)
-		{
-			
-			array_push($bookings, $stats);
-			
-		}
-		return $bookings;
+		return View::make('adminview.monitoring.index');
 	}
 
-	public function ajax_todayBookingPreparing()
+	public function ajaxLiveMonitoring()
 	{
-		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query1) use ($today)
+
+		$i = array();
+		$i['checkin'] = Date('Y-m-d');
+		$i['checkout'] = new DateTime('tomorrow');
+		$i['checkout'] = $i['checkout']->format('Y-m-d').' 11:59:00';
+
+		$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
+			$query->where(function($query2) use($i){
+				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
+		}))->get();
+		foreach($room as $i => $r)
 		{
-			$query1->where('created_at','like', "%$today%")->orWhere('check_out','like',"%$today%");
-		})->where('status',4)->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		
-		foreach($today_stats as $stats)
-		{
-			array_push($bookings, $stats);	
+			foreach($r->roomQty as $x => $r_qty)
+			{
+				if(count($r_qty->roomReserved) > 0)
+					if($r_qty->roomReserved[0]->isOverdue())
+					{
+					$room[$i]->roomQty[$x]->roomReserved[0]->status=6; //means overdue
+				}
+			}
 		}
-		return $bookings;
+
+		return $room;
+
 	}
 
-
-	public function ajax_todayBookingCancelled()
+	public function ajaxTodayStatistics()
 	{
 		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('cancelled_at','like', "%$today%")->where('status',5)->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		foreach($today_stats as $stats)
-		{
-			
-			array_push($bookings, $stats);
-			
-		}
-		return $bookings;
-	}
-	public function ajax_todayArrival()
-	{
-		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query) use ($today)
+		$statistics = array();
+		$bookings = Booking::where('created_at','like', "%$today%")->get();
+		$bookings1 = Booking::where('updated_at', 'like', '%$today%')->get();
+		$arrival_today  = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query) use ($today)
 		{
 			$query->where('check_in','like', "%$today%");
 		})->where('status', 1)->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		foreach($today_stats as $stats)
-		{
-			
-			array_push($bookings, $stats);
-			
-		}
-		return $bookings;
-	}
-	public function ajax_todayDeparture()
-	{
-		$today = date('Y-m-d');
-		$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('updated_at','like', "%$today%")->where(function($query) use ($today)
+
+		$ended_today = Booking::where(function($query) use ($today)
 		{
 			$query->where('status', 3)->orWhere(function($query) use ($today)
 			{
@@ -190,56 +156,196 @@ class DashboardController extends \BaseController {
 				});
 			});
 		})->get();
-		$cpage = 'dashboard';
-		$bookings = [];
-		
-		foreach($today_stats as $stats)
+
+		/*$statistics['success'] = Booking::with('reservedRoom_grp.room.roomDetails')->where('created_at','like', "%$today%")->where(function($query)
 		{
-			
-			array_push($bookings, $stats);
-			
-		}
+			$query->where('status', '=', 1)->orWhere('status', '=', 2);
+		})->get();*/
+$statistics['departure'] = $ended_today;
+$statistics['arrival'] = $arrival_today;
+$statistics['success'] = $bookings->filter(function($item)
+{
+	return $item->isSuccess(); 
+});
+$statistics['success'] = array_flatten($statistics['success']);
+$statistics['overdue'] = $ended_today->filter(function($item)
+{
+	return $item->isOverdue();
+});
+$statistics['overdue'] = array_flatten($statistics['overdue']);
+
+$statistics['pending'] = $bookings->filter(function($item)
+{
+	return $item->isPending();
+});
+$statistics['pending'] = array_flatten($statistics['pending']);
+$statistics['preparing'] = $bookings->filter(function($item)
+{
+	return $item->isPreparing();
+});
+$statistics['preparing'] = array_flatten($statistics['preparing']);
+$statistics['cancelled'] = $bookings->filter(function($item)
+{
+	return $item->isCancelled();
+});
+$statistics['cancelled'] = array_flatten($statistics['cancelled']);
+$statistics['occupied'] = $bookings->filter(function($item)
+{
+	return $item->isOccupied();
+});
+$statistics['occupied'] = array_flatten($statistics['occupied']);
+
+
+
+return $statistics;
+
+}
+public function ajax_todayBookingPending()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('created_at','like', "%$today%")->where('status','0')->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+
+	foreach($today_stats as $stats)
+	{
+
+		array_push($bookings, $stats);
+
+	}
+	return $bookings;
+}
+public function ajax_todayBookingOccupied()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query1) use ($today)
+	{
+		$query1->where('created_at','like', "%$today%")->orWhere('check_out','like',"%$today%");
+	})->where('status',2)->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+
+	foreach($today_stats as $stats)
+	{
+
+		array_push($bookings, $stats);
+
+	}
+	return $bookings;
+}
+
+public function ajax_todayBookingPreparing()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query1) use ($today)
+	{
+		$query1->where('created_at','like', "%$today%")->orWhere('check_out','like',"%$today%");
+	})->where('status',4)->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+
+	foreach($today_stats as $stats)
+	{
+		array_push($bookings, $stats);	
+	}
+	return $bookings;
+}
+
+
+public function ajax_todayBookingCancelled()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('cancelled_at','like', "%$today%")->where('status',5)->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+	foreach($today_stats as $stats)
+	{
+
+		array_push($bookings, $stats);
+
+	}
+	return $bookings;
+}
+public function ajax_todayArrival()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query) use ($today)
+	{
+		$query->where('check_in','like', "%$today%");
+	})->where('status', 1)->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+	foreach($today_stats as $stats)
+	{
+
+		array_push($bookings, $stats);
+
+	}
+	return $bookings;
+}
+public function ajax_todayDeparture()
+{
+	$today = date('Y-m-d');
+	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query) use ($today)
+	{
+		$query->where('status', 3)->orWhere(function($query) use ($today)
+		{
+			$query->where('check_out', 'like', "%$today%")->where(function($query1)
+			{
+				$query1->where('status','!=','5')->orWhere('status','!=',4);
+			});
+		});
+	})->get();
+	$cpage = 'dashboard';
+	$bookings = [];
+
+	foreach($today_stats as $stats)
+	{
+
+		array_push($bookings, $stats);
+
+	}
 	//return $today;
-		return $bookings;
-	}
-	public function todayBookingSuccess()
-	{
-		$today = date('Y-m-d');
+	return $bookings;
+}
+public function todayBookingSuccess()
+{
+	$today = date('Y-m-d');
 	//$today_stats = ReservedRoom::where('created_at','>', $today)->get();
-		$today_stats = Booking::where('created_at','>', $today)->get();
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.success_bookings', compact('cpage','success_bookings'));
-	}
-	public function todayBookingPending()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.pending_bookings', compact('cpage'));
-	}
-	public function todayBookingOccupied()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.occupied_bookings', compact('cpage'));
-	}
-	public function todayBookingPreparing()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.preparing_bookings', compact('cpage'));
-	}
-	public function todayBookingCancelled()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.cancelled_bookings', compact('cpage'));
-	}
-	public function todayArrival()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.arrival', compact('cpage'));
-	}
-	public function todayDeparture()
-	{
-		$cpage = 'dashboard';
-		return View::make('adminview.dashboard.departure', compact('cpage'));
-	}
+	$today_stats = Booking::where('created_at','>', $today)->get();
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.success_bookings', compact('cpage','success_bookings'));
+}
+public function todayBookingPending()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.pending_bookings', compact('cpage'));
+}
+public function todayBookingOccupied()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.occupied_bookings', compact('cpage'));
+}
+public function todayBookingPreparing()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.preparing_bookings', compact('cpage'));
+}
+public function todayBookingCancelled()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.cancelled_bookings', compact('cpage'));
+}
+public function todayArrival()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.arrival', compact('cpage'));
+}
+public function todayDeparture()
+{
+	$cpage = 'dashboard';
+	return View::make('adminview.dashboard.departure', compact('cpage'));
+}
 	/**
 	* Show the form for creating a new resource.
 	* GET /dashboard/create

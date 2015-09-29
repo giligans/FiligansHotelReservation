@@ -25,6 +25,42 @@ class Booking extends \Eloquent {
 		return $nights;
 	}
 
+	public function isSuccess()
+	{
+		return $this->status == 2 || $this->status == 1;
+	}
+
+	public function isPending()
+	{
+		return $this->status==5;
+	}
+
+	public function isPreparing()
+	{
+		return $this->status==4;
+	}
+	public function isCancelled()
+	{
+		return $this->status==5;
+	}
+	public function isOccupied()
+	{
+		return $this->status==2;
+	}
+	public function isOverdue()
+	{
+		$today = Carbon::now();
+		
+			if($today->gt($this->check_out))
+			{
+				return true;
+			}
+		
+		return false;
+	}
+
+
+
 	public function getCheckindateAttribute()
 	{
 		$newDate = date("F j, Y", strtotime($this->check_in));

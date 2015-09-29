@@ -16,7 +16,7 @@ return array(
 	|
 	*/
 
-	'driver' => 'file',
+	'driver' => 'cookie',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -27,7 +27,7 @@ return array(
 	| to be allowed to remain idle before it expires. If you want them
 	| to immediately expire on the browser closing, set that option.
 	|
-	*/
+	*/	
 
 	'lifetime' => 120,
 
@@ -83,7 +83,7 @@ return array(
 	|
 	*/
 
-	'lottery' => array(2, 100),
+	'lottery' => array(0, 100),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -137,4 +137,4 @@ return array(
 
 	'secure' => false,
 
-);
+	);

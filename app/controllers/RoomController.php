@@ -74,7 +74,7 @@ class RoomController extends \BaseController {
 				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
 			});
 		}))->get();
-		return $room;
+	
 		foreach($room as $r)
 		{
 		//$available_rooms = $r;
