@@ -46,7 +46,14 @@ class DashboardController extends \BaseController {
 		
 		$ended_today = Booking::where(function($query) use ($today)
 		{
-			$query->where('status', 3)->orWhere('check_out', 'like', "%$today%" );
+			$query->where(function($query) use ($today)
+			{
+				$query->where('check_out', 'like', "%$today%")
+				->where(function($query1)
+				{
+					$query1->where('status','!=','5')->orWhere('status','!=',4);
+				});
+			});
 		})->get();
 		
 		$cancelled = $cancelled_today->count();
@@ -134,16 +141,17 @@ class DashboardController extends \BaseController {
 		$today = date('Y-m-d');
 		$statistics = array();
 		$bookings = Booking::where('created_at','like', "%$today%")->get();
-		$bookings1 = Booking::where('updated_at', 'like', '%$today%')->get();
+		$bookings1 = Booking::where('updated_at', 'like', "%$today%")->get();
 		$arrival_today  = Booking::with('reservedRoom_grp.room.roomDetails')->where(function($query) use ($today)
 		{
 			$query->where('check_in','like', "%$today%");
 		})->where('status', 1)->get();
 		$ended_today = Booking::where(function($query) use ($today)
 		{
-			$query->where('status', 3)->orWhere(function($query) use ($today)
+			$query->where(function($query) use ($today)
 			{
-				$query->where('check_out', 'like', "%$today%")->where(function($query1)
+				$query->where('check_out', 'like', "%$today%")
+				->where(function($query1)
 				{
 					$query1->where('status','!=','5')->orWhere('status','!=',4);
 				});
