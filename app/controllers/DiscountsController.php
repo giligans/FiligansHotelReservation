@@ -20,20 +20,147 @@ class DiscountsController extends \BaseController {
 	{
 		$cpage ='discounts';
 		$i = Input::all();
-		$discount = new Discount;
-		$discount->name = $i['name'];
-		$discount->type = $i['type'];
-		$discount->description = $i['description'];
-		if(isset($i['type'])==1)
+		if(isset($i['type']) && $i['type'] == 0)
 		{
-			$discount->code = strtolower($i['code']);
+			$codes = explode(';', $i['code']);
+			try {
+
+				foreach($codes as $code)
+				{
+					$discount = new Discount;
+					$discount->name = $i['name'];
+					$discount->type = $i['type'];
+					$discount->effect_type = $i['effect_type'];
+					$discount->effect = $i['effect'];
+					$discount->description = $i['description'];
+					$discount->code = $code;
+
+					$discount->save();				
+				}
+			} 
+			
+			catch ( Illuminate\Database\QueryException $e) {
+				return Redirect::to('adminsite/discount')->with('error', $e->errorInfo[2]); 
+			}
+			return Redirect::to('adminsite/discount')->with('success', 'You have successfuly set a customer discount.');
 		}else
 		{
+			$discount = new Discount;
+			$discount->name = $i['name'];
+			$discount->type = $i['type'];
+			$discount->effect_type = $i['effect_type'];
+			$discount->effect = $i['effect'];
+			$discount->description = $i['description'];
 			$discount->code = null;
+			try {
+
+				if($discount->save())
+				{
+					return Redirect::to('adminsite/discount')->with('success', 'You have successfuly set a customer discount.');
+				}
+
+			} catch ( Illuminate\Database\QueryException $e) {
+				return Redirect::to('adminsite/discount')->with('error', $e->errorInfo[2]); 
+			}
 		}
-		$discount->save();
+
+		
 	}
 
+	public function deleteDiscount($id)
+	{
+		$d = Discount::where('id', $id)->first();
+		if($d)
+		{
+			$d->delete();
+		}
+	}
+	public function ajaxDiscounts()
+	{
+
+		$i = Input::all();
+		$arr = [];
+		$arr = getallheaders();
+		$count = null;
+		
+		if(isset($arr['Range']))
+		{
+			$response_array = array();
+			$range = $arr['Range'];
+			$response_array['Accept-Ranges'] = 'items';
+			$response_array['Range-Unit'] = 'items';
+			
+			$arr = explode('-', $arr['Range']);
+			$items = $arr[1] - $arr[0]+1;
+			$skip = $arr[0];
+			$skip = ($skip < 0) ? 0 : $skip;
+			$c = null;
+			if(isset($_GET['query']))
+			{
+				$query = $_GET['query'];
+				if($_GET['orderBy'] != '')
+				{
+					$orderBy = $_GET['orderBy'];
+					$count = Discount::where('name', 'LIKE', "%$query%")
+					->orWhere('code', 'LIKE', "%$query%")
+					->get()->count();
+					
+					$c=Discount::where('name', 'LIKE', "%$query%")
+					->orWhere('code', 'LIKE', "%$query%")->orderBy("$orderBy", 'DESC')->skip($skip)->take($items)->get();
+				}else
+				{
+					$count = Discount::where('name', 'LIKE', "%$query%")
+					->orWhere('code', 'LIKE', "%$query%")
+					->get()->count();
+					
+					$c=Discount::where('name', 'LIKE', "%$query%")
+					->orWhere('code', 'LIKE', "%$query%")->skip($skip)->take($items)->get();
+				}
+			}else
+			{
+				$count = Discount::all()->count();
+				$c = Discount::skip($skip)->take($items)->get();
+			}
+			
+			$response = Response::make($c, 200);
+			$response_array['Content-Ranges'] = 'items '.$range.'/'.$count;
+			$response->header('Content-Range',$response_array['Content-Ranges'])
+			->header('Accept-Ranges', 'items')->header('Range-Unit', 'items')->header('Total-Items', $count)
+			->header('Flash-Message','Now showing pages '.$arr[0].'-'.$arr[1].' out of '.$count);
+			return $response;
+		}
+
+		$c = Customer::all();
+		$response = Response::make($c, 200);
+
+		$response->header('Content-Ranges', 'test');
+		return $response;
+	}
+
+	public function updateDiscount()
+	{
+		$i = Input::all();
+		$discount = Discount::where('id', $i['discount_id'])->first();
+		if($discount)
+		{
+			$discount->name = $i['name'];
+			$discount->type = $i['type'];
+			$discount->effect_type = $i['effect_type'];
+			$discount->effect = $i['effect'];
+			$discount->description = $i['description'];
+			$discount->code = null;
+			try {
+
+				if($discount->save())
+				{
+					return Redirect::to('adminsite/discount')->with('success', 'You have successfuly updated customer discount.');
+				}
+			} catch ( Illuminate\Database\QueryException $e) {
+				return Redirect::to('adminsite/discount')->with('error', $e->errorInfo[2]); 
+			}
+		}
+
+	}
 
 	public function makeCustomerDiscount()
 	{
@@ -101,7 +228,86 @@ class DiscountsController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		//
+		$cpage = 'discount';
+		$d = Discount::where('id', $id)->first();
+		if($d)
+		{
+			return View::make('adminview.discount.show', compact('cpage','d'));	
+		}
+	}
+
+	public function ajaxCustomerDiscounts($id)
+	{
+		$cpage = 'customers';
+		$i = Input::all();
+		$arr = [];
+		$arr = getallheaders();
+		$count = null;
+		if(isset($arr['Range']))
+		{
+			$response_array = array();
+			$response_array['Accept-Ranges'] = 'items';
+			$response_array['Range-Unit'] = 'items';
+			$response_array['Content-Ranges'] = 'items '.$arr['Range'].'/'.$count;
+			$arr = explode('-', $arr['Range']);
+			$items = $arr[1] - $arr[0]+1;
+			$skip = $arr[0];
+			$skip = ($skip < 0) ? 0 : $skip;
+			$c = null;
+			if(isset($_GET['query']) && $_GET['query'] != '')
+			{
+				$query = $_GET['query'];
+				$count = $c =CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id') 
+				->where(function($customer) use ($query) {
+					$customer->where('customers.membership_id', 'LIKE', "%$query%")
+				->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
+				->orWhere('customers.firstname', 'LIKE', "%$query")
+				->orWhere('customers.lastname', 'LIKE', "%$query%");
+				})
+				->where('discount_id', $id)
+				->get()->count();
+				$c =CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id') 
+				->where(function($customer) use ($query){
+					$customer->where('customers.membership_id', 'LIKE', "%$query%")
+				->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
+				->orWhere('customers.firstname', 'LIKE', "%$query")
+				->orWhere('customers.lastname', 'LIKE', "%$query%");
+				})
+				->where('discount_id', $id)
+				->skip($skip)->take($items)->get();
+			}else
+			{
+				$count = CustomerDiscount::where('discount_id', $id)->get()->count();
+				$c = CustomerDiscount::where('discount_id', $id)->join('customers', 'customers.membership_id', '=','discounts_customers.customer_id')->skip($skip)->take($items)->get();
+			}
+			
+			$response = Response::make($c, 200);
+			$response->header('Content-Range',$response_array['Content-Ranges'])
+			->header('Accept-Ranges', 'items')->header('Range-Unit', 'items')->header('Total-Items', $count)
+			->header('Flash-Message','Now showing pages '.$arr[0].'-'.$arr[1].' out of '.$count);
+			return $response;
+		}
+		
+		$c = Customer::all();
+		$response = Response::make($c, 200);
+
+		$response->header('Content-Ranges', 'test');
+		return $response;
+
+	/*	$c = Customer::all();
+	return $c;*/
+
+		
+	}
+
+	public function deleteCustomerDiscounts($id)
+	{
+		$cd = CustomerDiscount::where('id', $id)->first();
+		if($cd)
+		{
+			$cd->delete();
+			return 'success';
+		}
 	}
 
 	/**

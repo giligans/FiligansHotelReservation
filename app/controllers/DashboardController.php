@@ -84,9 +84,7 @@ class DashboardController extends \BaseController {
 		$success_bookings = [];
 		foreach($today_stats as $stats)
 		{
-
 			array_push($success_bookings, $stats);
-
 		//return 'hey';
 		//
 		}
@@ -94,20 +92,19 @@ class DashboardController extends \BaseController {
 		return $success_bookings;
 	}
 	
-
 	public function liveMonitoring()
 	{
 		return View::make('adminview.monitoring.index');
 	}
-
 	public function ajaxLiveMonitoring()
 	{
-
 		$i = array();
+		$today = Date('Y-m-d');
+
 		$i['checkin'] = Date('Y-m-d');
 		$i['checkout'] = new DateTime('tomorrow');
 		$i['checkout'] = $i['checkout']->format('Y-m-d').' 11:59:00';
-
+		
 		$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
 			$query->where(function($query2) use($i){
 				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
@@ -130,11 +127,8 @@ class DashboardController extends \BaseController {
 				}
 			}
 		}
-
 		return $room;
-
 	}
-
 	public function ajaxTodayStatistics()
 	{
 		$today = date('Y-m-d');
@@ -145,7 +139,6 @@ class DashboardController extends \BaseController {
 		{
 			$query->where('check_in','like', "%$today%");
 		})->where('status', 1)->get();
-
 		$ended_today = Booking::where(function($query) use ($today)
 		{
 			$query->where('status', 3)->orWhere(function($query) use ($today)
@@ -156,7 +149,6 @@ class DashboardController extends \BaseController {
 				});
 			});
 		})->get();
-
 		/*$statistics['success'] = Booking::with('reservedRoom_grp.room.roomDetails')->where('created_at','like', "%$today%")->where(function($query)
 		{
 			$query->where('status', '=', 1)->orWhere('status', '=', 2);
@@ -165,7 +157,7 @@ $statistics['departure'] = $ended_today;
 $statistics['arrival'] = $arrival_today;
 $statistics['success'] = $bookings->filter(function($item)
 {
-	return $item->isSuccess(); 
+	return $item->isSuccess();
 });
 $statistics['success'] = array_flatten($statistics['success']);
 $statistics['overdue'] = $ended_today->filter(function($item)
@@ -173,7 +165,6 @@ $statistics['overdue'] = $ended_today->filter(function($item)
 	return $item->isOverdue();
 });
 $statistics['overdue'] = array_flatten($statistics['overdue']);
-
 $statistics['pending'] = $bookings->filter(function($item)
 {
 	return $item->isPending();
@@ -194,11 +185,7 @@ $statistics['occupied'] = $bookings->filter(function($item)
 	return $item->isOccupied();
 });
 $statistics['occupied'] = array_flatten($statistics['occupied']);
-
-
-
 return $statistics;
-
 }
 public function ajax_todayBookingPending()
 {
@@ -206,12 +193,9 @@ public function ajax_todayBookingPending()
 	$today_stats = Booking::with('reservedRoom_grp.room.roomDetails')->where('created_at','like', "%$today%")->where('status','0')->get();
 	$cpage = 'dashboard';
 	$bookings = [];
-
 	foreach($today_stats as $stats)
 	{
-
 		array_push($bookings, $stats);
-
 	}
 	return $bookings;
 }
@@ -224,16 +208,12 @@ public function ajax_todayBookingOccupied()
 	})->where('status',2)->get();
 	$cpage = 'dashboard';
 	$bookings = [];
-
 	foreach($today_stats as $stats)
 	{
-
 		array_push($bookings, $stats);
-
 	}
 	return $bookings;
 }
-
 public function ajax_todayBookingPreparing()
 {
 	$today = date('Y-m-d');
@@ -243,15 +223,12 @@ public function ajax_todayBookingPreparing()
 	})->where('status',4)->get();
 	$cpage = 'dashboard';
 	$bookings = [];
-
 	foreach($today_stats as $stats)
 	{
-		array_push($bookings, $stats);	
+		array_push($bookings, $stats);
 	}
 	return $bookings;
 }
-
-
 public function ajax_todayBookingCancelled()
 {
 	$today = date('Y-m-d');
@@ -260,9 +237,7 @@ public function ajax_todayBookingCancelled()
 	$bookings = [];
 	foreach($today_stats as $stats)
 	{
-
 		array_push($bookings, $stats);
-
 	}
 	return $bookings;
 }
@@ -277,9 +252,7 @@ public function ajax_todayArrival()
 	$bookings = [];
 	foreach($today_stats as $stats)
 	{
-
 		array_push($bookings, $stats);
-
 	}
 	return $bookings;
 }
@@ -298,12 +271,9 @@ public function ajax_todayDeparture()
 	})->get();
 	$cpage = 'dashboard';
 	$bookings = [];
-
 	foreach($today_stats as $stats)
 	{
-
 		array_push($bookings, $stats);
-
 	}
 	//return $today;
 	return $bookings;

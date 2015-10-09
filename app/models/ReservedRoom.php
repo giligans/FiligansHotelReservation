@@ -21,19 +21,33 @@ class ReservedRoom extends \Eloquent {
 		return $this->belongsTo('RoomQty','room_id', 'id');
 	}
 
-	public function getTaxPriceAttribute()
-	{
-
-	}
-
-	public function isOverdue()
+	public function getStatusAttribute($value)
 	{
 		$today = Carbon::now();
-		
-		if($today->gt($this->check_out))
+		if($value==1)
 		{
-			return true;
+			if($today->gt($this->check_out))
+			{
+				$this->status=3;
+				$this->save();
+				return $this->status;
+			}
+
 		}
+		return $value;	
+	}
+	
+	public function isOverdue()
+	{	
+		$today = Carbon::now();
+		if($this->status==2)
+		{
+			if($today->gt($this->check_out))
+			{
+				return true;
+			}
+		}
+		
 		return false;
 	}
 

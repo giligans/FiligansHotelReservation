@@ -50,11 +50,14 @@ class Booking extends \Eloquent {
 	public function isOverdue()
 	{
 		$today = Carbon::now();
-		
+		if($this->status==2)
+		{
 			if($today->gt($this->check_out))
 			{
 				return true;
 			}
+		}
+		
 		
 		return false;
 	}
@@ -82,6 +85,24 @@ class Booking extends \Eloquent {
 	{
 		return $this->hasMany('ReservedRoom','booking_id','id')->select(DB::raw('*, sum(price) as price, count(*) as quantity'))->groupBy('room_type')->groupBy('booking_id');
 	}
+
+	public function getStatusAttribute($value)
+	{
+		$today = Carbon::now();
+		if($value==1)
+		{
+			if($today->gt($this->check_out))
+			{
+				$this->status=3;
+				$this->save();
+				
+			}
+
+		}
+		return $value;	
+	}
+
+
 
 	public function getCheckOutAttribute($value){
 		return Carbon::parse($value);

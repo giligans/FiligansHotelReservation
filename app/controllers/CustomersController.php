@@ -14,6 +14,55 @@ class CustomersController extends \BaseController {
 		return View::make('adminview.customer.index', compact('cpage'));
 	}
 
+
+	public function ajaxCustomers()
+	{
+		$cpage = 'customers';
+		$i = Input::all();
+		$arr = [];
+		$arr = getallheaders();
+		$count = Customer::all()->count();
+		
+		if(isset($arr['Range']))
+		{
+			$response_array = array();
+			$response_array['Accept-Ranges'] = 'items';
+			$response_array['Range-Unit'] = 'items';
+			$response_array['Content-Ranges'] = 'items '.$arr['Range'].'/'.$count;
+			$arr = explode('-', $arr['Range']);
+			$items = $arr[1] - $arr[0]+1;
+			$skip = $arr[0];
+			$skip = ($skip < 0) ? 0 : $skip;
+			$c = null;
+			if(isset($_GET['query']) && $_GET['query'] != '')
+			{
+				$query = $_GET['query'];
+				$c = Customer::where('membership_id', 'LIKE', "%$query%")
+				->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
+				->orWhere('firstname', 'LIKE', "%$query")
+				->orWhere('lastname', 'LIKE', "%$query%")->skip($skip)->take($items)->get();
+			}else
+			{
+				$c = Customer::skip($skip)->take($items)->get();
+			}
+			
+			$response = Response::make($c, 200);
+			$response->header('Content-Range',$response_array['Content-Ranges'])
+			->header('Accept-Ranges', 'items')->header('Range-Unit', 'items')->header('Total-Items', $count)
+			->header('Flash-Message','Now showing pages '.$arr[0].'-'.$arr[1].' out of '.$count);
+			return $response;
+		}
+		
+		$c = Customer::all();
+		$response = Response::make($c, 200);
+
+		$response->header('Content-Ranges', 'test');
+		return $response;
+
+	/*	$c = Customer::all();
+	return $c;*/
+}
+
 	/**
 	 * Show the form for creating a new resource.
 	 * GET /customers/create
@@ -107,7 +156,13 @@ class CustomersController extends \BaseController {
 
 	public function show($id)
 	{
-		//
+		$cpage = 'customer';
+		$customer = Customer::with('discounts.discountDetails')->where('membership_id', $id)->first();
+		if($customer)
+		{
+			return View::make('adminview.customer.show', compact('cpage','customer'));
+		}
+		
 	}
 
 	/**
@@ -129,9 +184,31 @@ class CustomersController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update()
 	{
-		//
+		$i = Input::all();
+		$customer = Customer::where('membership_id', $i['membership_id'])->first();
+		if($customer)
+		{
+			$customer->firstname = $i['firstname'];
+			$customer->lastname = $i['lastname'];
+			$customer->address = $i['address'];
+			$customer->contact_no = $i['contact_no'];
+			try {
+
+				if($customer->save())
+				{
+					return Redirect::to('adminsite/customer')->with('success_create', 'true');
+				}
+
+			} catch ( Illuminate\Database\QueryException $e) {
+				return Redirect::to('adminsite/customer')->with('error', $e->errorInfo[2]); 
+			}
+		}
+		
+
+		
+		
 	}
 
 	/**
@@ -141,9 +218,14 @@ class CustomersController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function delete($id)
 	{
-		//
+		$c = Customer::where('membership_id', $id)->first();
+	
+		if($c)
+		{
+			$c->delete();
+		}
 	}
 
 }

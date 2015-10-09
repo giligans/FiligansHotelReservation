@@ -115,12 +115,11 @@
 						class="active"
 						@endif
 						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon-credit-card"></span> Room Management</a></li>
-						
 						<li
-						@if($cpage == 'Customers')
+						@if($cpage == 'customers')
 						class="active"
 						@endif
-						><a href="{{ URL::to('adminsite/room') }}">	<span class="glyphicon glyphicon glyphicon glyphicon-certificate"></span> Customers </a></li>
+						><a href="{{ URL::to('adminsite/customer') }}">	<span class="glyphicon glyphicon glyphicon glyphicon-certificate"></span> Customers </a></li>
 
 						<li
 						@if($cpage == 'discount')
@@ -167,6 +166,8 @@
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src='http://underscorejs.org/underscore-min.js'></script>
 	<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.min.js'></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular-route.min.js"></script>
+	 {{ HTML::script('admin/asset/js/paginate-anything.min.js') }}
 	{{ HTML::script('asset/scripts/moment.js') }}
 	{{ HTML::script('asset/scripts/angular-moment.min.js') }}
 	{{ HTML::script('asset/scripts/ui-bootstrap-tpls-0.12.0.min.js') }}

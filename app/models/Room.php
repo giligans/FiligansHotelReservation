@@ -16,5 +16,7 @@ class Room extends \Eloquent {
 		return $this->hasMany('RoomImage', 'room_id', 'id');
 	}
 
-	
+
+
+
 }

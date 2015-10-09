@@ -11,6 +11,11 @@
 |
 */
 
+Route::get('test', function()
+{
+	$c = CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id')->get();
+	return $c;
+});
 
 Route::get('/', function()
 {
@@ -448,17 +453,26 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 	Route::get('todaystatistics/ajax', 'DashboardController@ajaxTodayStatistics');
 	
 	Route::get('customer', 'CustomersController@index');
+	Route::get('customer/{id}/show', 'CustomersController@show');
+	Route::get('customer/ajax', 'CustomersController@ajaxCustomers');
 	Route::get('customer/search/{search}', 'CustomersController@searchCustomer');
 	Route::post('customer/create', 'CustomersController@store');
+	Route::post('customer/{id}/delete', 'CustomersController@delete');
+	Route::post('customer/update', 'CustomersController@update');
 	Route::get('discount', 'DiscountsController@index');
+	Route::get('discount/{id}/show' ,'DiscountsController@show');
 	Route::get('discount/type', 'DiscountsController@listDiscountType');
 	Route::get('discount/customers', 'DiscountController@listCustomer');
-	Route::get('discount/customer-discounts', 'DiscountController@makeCustomerDiscounts');
-
+	Route::get('discount/customer-discounts', 'DiscountsController@makeCustomerDiscounts');
+	
+	Route::get('discount/{id}/ajax', 'DiscountsController@ajaxCustomerDiscounts');
+	Route::get('discount/ajax', 'DiscountsController@ajaxDiscounts');
+	Route::post('discount/customer/{id}/delete', 'DiscountsController@deleteCustomerDiscounts');
 	Route::post('discount/type/create', 'DiscountsController@createType');
+	Route::post('discount/type/update', 'DiscountsController@updateDiscount');
 	Route::post('discount/type/create', 'DiscountsController@makeDiscountType');
 	Route::post('discount/customers-discounts/create', 'DiscountsController@makeCustomerDiscount');
-
+	Route::post('discount/{id}/delete', 'DiscountsController@deleteDiscount');
 
 
 	/*FOR PULLING DATA VIA AJAX*/

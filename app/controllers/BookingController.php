@@ -85,6 +85,7 @@ class BookingController extends \BaseController {
 		}
 	}
 	
+
 	public function thisYearList()
 	{	
 		$today = date("Y");
@@ -138,13 +139,155 @@ class BookingController extends \BaseController {
 	}
 
 	public function bookingList(){
-		$booking_recent = Booking::with('reservedRoom_grp.room.roomDetails')->get();
-		//$booking_recent = ReservedRoom::with('room.roomDetails')->get();
-		if(!empty($booking_recent)){
-			return $booking_recent;
-		}else{
-			return '0';
+
+		$arr = [];
+		$arr = getallheaders();
+
+		$count = null;
+
+		if(isset($arr['Range']))
+		{ 
+			$response_array = array();
+			$response_array['Accept-Ranges'] = 'items';
+			$range = $arr['Range'];
+			$response_array['Range-Unit'] = 'items';
+			
+			$arr = explode('-', $arr['Range']);
+			$items = $arr[1] - $arr[0]+1;
+			$skip = $arr[0];
+			$skip = ($skip < 0) ? 0 : $skip;
+			$c = null;
+			
+			if(isset($_GET['query']))
+			{
+				/*query variables*/
+				$query = $_GET['query'];
+				$startdate = $_GET['startdate'];
+				$enddate = ($_GET['enddate']=='') ? date('Y-m-d') : $_GET['enddate'];
+				$status_arr = array();
+				if($_GET['pending']=='true')
+				{
+					array_push($status_arr, 0);
+				}
+				if($_GET['paid']=='true')
+				{
+					array_push($status_arr, 1);
+				}
+				if($_GET['occupied']=='true')
+				{
+					array_push($status_arr,  2);
+				}
+				if($_GET['ended']=='true')
+				{
+					
+					array_push($status_arr, 3);
+				}
+				if($_GET['preparing']=='true')
+				{
+					array_push($status_arr, 4);
+				}
+				if($_GET['cancelled']=='true')
+				{
+					array_push($status_arr, 5);
+				}
+				if($_GET['overdue']=='true')
+				{
+					array_push($status_arr, 6);
+				}
+				$status_arr = (count($status_arr) > 0 ? $status_arr : array(0,1,2,3,4,5,6) );
+				/*end of query variables*/
+				$count = Booking::with('reservedRoom_grp.room.roomDetails')
+				->where('id', 'LIKE', "%$query%")
+				->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
+				->orWhere('firstname', 'LIKE', "%$query%")
+				->orWhere('lastname', 'LIKE', "%$query%")
+				->orWhere('code', 'LIKE', "%$query%")
+				->get()->count();
+
+
+				if(isset($_GET['orderBy']) && $_GET['orderBy'] != '')
+				{
+					$orderBy = $_GET['orderBy'];
+					$count = Booking::with('reservedRoom_grp.room.roomDetails')
+					->where(function($query1) use ($query){
+						$query1->where('id', 'LIKE', "%$query%")
+						->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
+						->orWhere('firstname', 'LIKE', "%$query%")
+						->orWhere('lastname', 'LIKE', "%$query%")
+						->orWhere('code', 'LIKE', "%$query%");
+					})
+					->where(function($date) use ($startdate, $enddate)
+					{
+						$date->whereBetween('check_in', array($startdate, $enddate))
+						->orWhereBetween('check_out', array($startdate, $enddate))
+						->orWhereRaw('"'.$startdate.'" between check_in and check_out')
+						->orWhereRaw('"'.$enddate.'" between check_in and check_out');
+					})
+					->where(function($status) use ($status_arr)
+					{
+						$status->whereIn('status', $status_arr);
+					})->get()->count();
+					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					->where(function($query1) use ($query){
+						$query1->where('id', 'LIKE', "%$query%")
+						->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
+						->orWhere('firstname', 'LIKE', "%$query%")
+						->orWhere('lastname', 'LIKE', "%$query%")
+						->orWhere('code', 'LIKE', "%$query%");
+					})
+					->where(function($date) use ($startdate, $enddate)
+					{
+						$date->whereBetween('check_in', array($startdate, $enddate))
+						->orWhereBetween('check_out', array($startdate, $enddate))
+						->orWhereRaw('"'.$startdate.'" between check_in and check_out')
+						->orWhereRaw('"'.$enddate.'" between check_in and check_out');
+					})
+					->where(function($status) use ($status_arr)
+					{
+						$status->whereIn('status', $status_arr);
+					})
+					->orderBy("$orderBy" , 'DESC')
+					->skip($skip)->take($items)->get();
+				}else
+				{
+
+					$orderBy = $_GET['orderBy'];
+					$count = Booking::all()->count();
+					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					->where('id', 'LIKE', "%$query%")
+					->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
+					->orWhere('firstname', 'LIKE', "%$query%")
+					->orWhere('lastname', 'LIKE', "%$query%")
+					->orWhere('code', 'LIKE', "%$query%")
+					->skip($skip)->take($items)->get();
+
+				}
+			}else
+			{
+
+				$count = Booking::all()->count();
+				if(isset($_GET['orderBy']) && $_GET['orderBy'] != '')
+				{
+					$orderBy = $_GET['orderBy'];
+					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					->orderBy("$orderBy", 'DESC')->skip($skip)->take($items)->get();
+				}else
+				{
+					$b = Booking::with('reservedRoom_grp.room.roomDetails')->skip($skip)->take($items)->get();
+				}
+			}
+			$response = Response::make($b, 200);
+			$response_array['Content-Ranges'] = 'items '.$range.'/'.$count;
+			$response->header('Content-Range',$response_array['Content-Ranges'])
+			->header('Accept-Ranges', 'items')->header('Range-Unit', 'items')->header('Total-Items', $count)
+			->header('Flash-Message','Now showing pages '.$arr[0].'-'.$arr[1].' out of '.$count);
+			return $response;
 		}
+
+		$b = Booking::all();
+		$response = Response::make($b, 200);
+		$response->header('Content-Ranges', 'test');
+		return $response;
 	}
 
 	public function create()

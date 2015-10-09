@@ -3,7 +3,8 @@
 class Customer extends \Eloquent {
 
 	protected $fillable = [];
-	protected $appends = ['current_discount'];
+	protected $primaryKey = 'membership_id';
+	protected $appends = ['current_discount','fullname','created_at_str', 'updated_at_str'];
 
 	public function  getCurrentDiscountAttribute()
 	{
@@ -24,7 +25,28 @@ class Customer extends \Eloquent {
 
 	}
 
-	
+	public function discounts()
+	{
+		return $this->hasMany('CustomerDiscount', 'customer_id', 'membership_id');
+	}
+
+	public function getFullnameAttribute()
+	{
+		return $this->firstname.' '.$this->lastname;
+	}
+
+	public function getCreatedAtStrAttribute()
+	{
+		$date = Carbon::parse($this->created_at);
+		$date = $date->diffForHumans();
+		return $date;
+	}
+	public function getUpdatedAtStrAttribute()
+	{
+		$date = Carbon::parse($this->updated_at);
+		$date = $date->diffForHumans();
+		return $date;
+	}
 	public function generateCustomerId()
 	{
 		$stop = null;	
