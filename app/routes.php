@@ -72,10 +72,21 @@ Route::post('booking/step1', function(){
 Route::get('booking/step2', function(){
 	$cpage = 'booking.step2';
 	$room = null;
+	
 	if(Session::has('reservation.checkin') && Session::has('reservation.checkout')){
 		$i = [];
-		$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
+
+		$checkin = null;
+		$checkout = null;
+		/*try
+		{*/
+			$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
 		$i['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
+		/*}catch(exception $e)
+		{
+			$i['checkin'] = Session::get('reservation.checkin');
+		$i['checkout'] = Session::get('reservation.checkout');
+		}*/
 			//return $i;
 		$available_rooms = 0;
 		$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
@@ -156,15 +167,24 @@ Route::post('booking/step3', function(){
 });
 
 Route::get('booking/step4', function(){
-	
-	$ci = new Carbon(Session::get('reservation')['checkin']);
-	$co = new Carbon(Session::get('reservation')['checkout']);
-	$diff = $co->addMinutes(1)->diff($ci)->days;
-	
-	Session::put('reservation.nights', $diff);
-	$cpage = 'booking.step4';
-	return View::make('clientview2.booking.step4', compact('cpage'));
+	//return Session::get('reservation')['checkin'];
+	try
+	{
+		$ci = new Carbon(Session::get('reservation')['checkin']);
+		$co = new Carbon(Session::get('reservation')['checkout']);
+		$diff = $co->addMinutes(1)->diff($ci)->days;
 
+		Session::put('reservation.nights', $diff);
+		$cpage = 'booking.step4';
+		return View::make('clientview2.booking.step4', compact('cpage'));
+
+	}
+	catch(exception $e)
+	{
+		Session::forget('reservation');
+		return Redirect::to('booking')->with('error', 'Something went wrong. Please try again.');
+	}
+	
 });
 
 Route::post('booking/payment', array(

@@ -84,6 +84,11 @@ bookingController
 	.btm-mrg-20 {
 		margin-bottom: 20px!important;
 	}
+	.room-details
+	{
+		margin:5px;
+	}
+
 	/* Color  */
 	.clr-535353 {
 		color: #535353;
@@ -136,16 +141,16 @@ bookingController
 </div>
 <div class="row" style='margin-top:30px'>
 	<div style='max-width:960px;margin:0 auto'>
-		<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
 			<center>
-			<h2 style='font-family:"Oswald";float:right'>Pick a room</h2>
-			<div class="clearfix"></div>
-			<small style='float:right'>This are the available rooms from date</small>
-			<div class="clearfix"></div>
-			<small style='float:right'> <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.checkin'))); ?> </span> to <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.display_checkout'))); ?> </span><br> at 12:00 NN</small>
+				<h2 style='font-family:"Oswald";float:right'>Pick a room</h2>
+				<div class="clearfix"></div>
+				<small style='float:right'>This are the available rooms from date</small>
+				<div class="clearfix"></div>
+				<small style='float:right'> <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.checkin'))); ?> </span> to <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.display_checkout'))); ?> </span><br> at 12:00 NN</small>
 			</center>
 		</div>
-		<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style='border-left:1px solid #d8d8d8;margin-top:20px'>
+		<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" style='border-left:1px solid #d8d8d8;margin-top:20px'>
 			<form method='POST' action='{{ URL::to("booking/step2") }}'>
 				<input type='hidden' name='checkin' value="3" >
 				<input type='hidden' name='checkout' value="3" >
@@ -160,7 +165,7 @@ bookingController
 						$room_qty = 0;
 						$room_id =0;
 						foreach($r->roomQty as $r_qty){
-							if($r_qty->roomReserved=='[]'){
+							if($r_qty->roomReserved=='[]' && $r_qty->status==1){
 								$room_qty++;
 								$room_id = $r_qty->id;
 							}
@@ -171,69 +176,86 @@ bookingController
 							<div class="media">
 								<div class="pull-left">
 									<a class="" href="#" target="_parent">
-									<img alt="image" class="img-responsive" src="{{ URL::to('image/medium/'.$r->roomImages[0]->photo->filename) }} "></a>
-								</a>
-								<div style='width:150px;padding:10px;'>
-									<!-- SPINNER HERE -->
-									<number-spinner quantity="<?php
-									if(isset(Session::get('reservation')['reservation_room'])){
-										$array = array_where(Session::get('reservation')['reservation_room'], function($key, $value) use($r){
-											if($value['room_details']['id']== $r->id){
-												return true;
-											}
-										});
-									if(!empty($array))
-									{
-									echo  Session::get('reservation')['reservation_room'][key($array)]['quantity'];
-									}else{
-									echo '0';
-									}
-									}else{
-									echo '0';
-									}
-									?>"
-									room = "{{ $r->id }}"
-									index="{{ $r->id }}" maxquantity='{{ $room_qty }}'>
-									</number-spinner>
-									@if($room_qty<1)
-									<div class="alert alert-danger" style='margin:5px;padding:5px'>
-										
-										Not available
-									</div>
-									@else
-									<div class="alert alert-success" style='margin:5px;padding:5px'>
-										{{ $room_qty }} room(s) available!
-									</div>
-									@endif
-								</div>
-							</div>
-							<div class="clearfix visible-sm"></div>
-							<div class="media-body fnt-smaller">
-								<a href="#" target="_parent"></a>
-								<h4 class="media-heading">
-								<a href="#" target="_parent">{{ $r->name }}  <small class="pull-right"><span class="label label-danger">P  {{{ $r->price }}} per night </span></small></a></h4>
-								<ul class="list-inline mrg-0 btm-mrg-10 clr-535353">
-								</li>{{ $r->max_adults}} Adult(s)</li>
-								<li style="list-style: none">|</li>
-								<li>{{ $r->max_children}} Children</li>
-								<li style="list-style: none">|</li>
-								<li>{{ $r->beds }} Beds</li>
-							</ul>
-							<p class="hidden-xs"> {{ $r->short_desc }}
-							...</p><span class="fnt-smaller fnt-lighter fnt-arial">Courtesy of HS Fox & Roach-Chestnut Hill
-							Evergreen</span>
-						</div>
-					</div>
-					</div><!-- End Listing-->
-					@endforeach
-					</div><!-- End container -->
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<button type="submit" class="btn btn-large btn-block btn-primary">Proceed</button>
-				</div>
-			</div>
-		</form>
-	</div>
+										<img alt="image" class="img-responsive" src="{{ URL::to('image/medium/'.$r->roomImages[0]->photo->filename) }} "></a>
+									</a>
+									<div style='width:150px;padding:10px;'>
+										<!-- SPINNER HERE -->
+										<number-spinner quantity="<?php
+										if(isset(Session::get('reservation')['reservation_room'])){
+											$array = array_where(Session::get('reservation')['reservation_room'], function($key, $value) use($r){
+												if($value['room_details']['id']== $r->id){
+													return true;
+												}
+											});
+if(!empty($array))
+{
+	echo  Session::get('reservation')['reservation_room'][key($array)]['quantity'];
+}else{
+	echo '0';
+}
+}else{
+	echo '0';
+}
+?>"
+room = "{{ $r->id }}"
+index="{{ $r->id }}" maxquantity='{{ $room_qty }}'>
+</number-spinner>
+@if($room_qty<1)
+<div class="alert alert-danger" style='margin:5px;padding:5px'>
+
+	Not available
+</div>
+@else
+<div class="alert alert-success" style='margin:10px 0 0 0;padding:5px'>
+	{{ $room_qty }} room(s) available!
+</div>
+@endif
+</div>
+</div>
+<div class="clearfix visible-sm"></div>
+<div class="media-body fnt-smaller">
+	<a href="#" target="_parent"></a>
+	<h4 class="media-heading">
+		<p>
+			{{{ $r->name }}} 
+		</p>
+		<p style='font-family:Open Sans, Arial;color:green;font-weight:600'>
+			P {{ $r->price }}  
+		</p>
+
+                                  <!--   <a href="#" target="_parent"> <small class="pull-right"><span class="label label-danger">P  {{{ $r->price }}} </span></small></a>
+                              --></h4>
+                              <!-- <ul class="list-inline mrg-0 btm-mrg-10 clr-535353">
+                              </li>{{ $r->max_adults}} Adult(s)</li>
+                              <li style="list-style: none">|</li>
+                              <li>{{ $r->max_children}} Children</li>
+                              <li style="list-style: none">|</li>
+                              <li>{{ $r->beds }} Beds</li>
+                          </ul> -->
+                          <p class='room-details'>
+                          	Adults : {{ $r->max_adults }}
+                          </p>
+                          <p class='room-details'>
+                          	Children : {{ $r->max_children}} 
+                          </p>
+                          <p class='room-details'>
+                          	Beds : {{ $r->beds }}
+                          </p>
+                          <p class="hidden-xs"> {{ $r->short_desc }}
+                          	...</p><span class="fnt-smaller fnt-lighter fnt-arial">Courtesy of HS Fox & Roach-Chestnut Hill
+                          	Evergreen</span>
+                          </div>
+                      </div>
+                  </div><!-- End Listing-->
+                  @endforeach
+              </div><!-- End container -->
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          	<button type="submit" class="btn btn-large btn-block btn-primary">Proceed</button>
+          </div>
+      </div>
+  </form>
+</div>
 </div>
 @stop
 @section('scripts')

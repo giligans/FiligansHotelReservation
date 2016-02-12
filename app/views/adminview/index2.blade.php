@@ -18,7 +18,8 @@ indexCtrl
 <div class="row">
 	
 	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-		<h3>Recent Bookings <button type="button" class="btn btn-xs btn-info">view all</button></h3> 
+		<h3>Recent Bookings <button type="button" class="btn btn-xs btn-info">view all</button>
+	 <button type="button" class="btn btn-xs btn-info">Go to live monitoring system</button></h3> 
 		<table class="table table-hover table-bordered  table-striped">
 			<thead>
 				<tr>

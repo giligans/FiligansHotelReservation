@@ -7,13 +7,18 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 		{
 			return $http.get('/adminsite/getbookinglist');
 		},
-		updateBooking : function(data)
+		updateBooking : function(data, otherinfo)
 		{
 			var info = {
 				status : data.status,
 				cancelled_remarks : data.cancelled_remarks,
-				paid : data.paid
+				paid : data.paid,
+				savethis:otherinfo.savethis,
+				price_addition : otherinfo.price_addition,
+				price_deduction : otherinfo.price_deduction,
+				bookingremarks : otherinfo.bookingremarks
 			}
+
 			return $http.post('/adminsite/booking/'+data.id+'/update', info);
 		},
 		proceedPayment : function(data)
@@ -144,6 +149,9 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 			6 : false
 		}
 	}
+	$scope.bookingremarks='';
+	$scope.price_deduction =0;
+	$scope.price_addition =0;
 	$scope.orderQuery = 'updated_at';
 	$scope.urlParams.orderBy = angular.copy($scope.orderQuery);
 	$scope.$watch('orderQuery', function(newVal, oldVal)
@@ -386,6 +394,7 @@ $timeout(function()
 }
 $scope.executePayment = function()
 {
+	
 }
 $scope.publishBooking = function()
 {
@@ -426,13 +435,24 @@ $scope.paid=false;
 	$('#updateBooking').modal('show');
 }
 $scope.saveChanges = function(){
-	bookingFactory.updateBooking($scope.updateBooking).success(function(data){
+	var otherinfo = {
+		savethis : (($scope.price_addition !=0 || $scope.price_deduction !=0) && $scope.bookingremarks !='') ? true : false,
+		price_addition: $scope.price_addition,
+		price_deduction:$scope.price_deduction,
+		bookingremarks : $scope.bookingremarks
+	}
+
+	bookingFactory.updateBooking($scope.updateBooking,otherinfo).success(function(data){
 		var i = $scope.booking.length;
 		while(i!=0)
 		{
 			i--;
 			if($scope.booking[i].id == data.id)
 			{
+				$scope.price_addition=0;
+				$scope.price_deduction=0;
+				$scope.bookingremarks='';
+
 				$scope.booking[i] = angular.copy(data);
 				$scope.success=true;
 				$timeout(function(){

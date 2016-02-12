@@ -12,7 +12,6 @@ class DiscountsController extends \BaseController {
 	{
 		$cpage = 'discount';
 		$membership = Discount::where('type',1)->get();
-
 		return View::make('adminview.discount.index', compact('cpage', 'membership'));
 	}
 
@@ -75,6 +74,7 @@ class DiscountsController extends \BaseController {
 			$d->delete();
 		}
 	}
+
 	public function ajaxDiscounts()
 	{
 
@@ -112,7 +112,6 @@ class DiscountsController extends \BaseController {
 					$count = Discount::where('name', 'LIKE', "%$query%")
 					->orWhere('code', 'LIKE', "%$query%")
 					->get()->count();
-					
 					$c=Discount::where('name', 'LIKE', "%$query%")
 					->orWhere('code', 'LIKE', "%$query%")->skip($skip)->take($items)->get();
 				}
@@ -260,18 +259,18 @@ class DiscountsController extends \BaseController {
 				$count = $c =CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id') 
 				->where(function($customer) use ($query) {
 					$customer->where('customers.membership_id', 'LIKE', "%$query%")
-				->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
-				->orWhere('customers.firstname', 'LIKE', "%$query")
-				->orWhere('customers.lastname', 'LIKE', "%$query%");
+					->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
+					->orWhere('customers.firstname', 'LIKE', "%$query")
+					->orWhere('customers.lastname', 'LIKE', "%$query%");
 				})
 				->where('discount_id', $id)
 				->get()->count();
 				$c =CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id') 
 				->where(function($customer) use ($query){
 					$customer->where('customers.membership_id', 'LIKE', "%$query%")
-				->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
-				->orWhere('customers.firstname', 'LIKE', "%$query")
-				->orWhere('customers.lastname', 'LIKE', "%$query%");
+					->orWhereRaw("concat_ws(' ',customers.firstname,customers.lastname) LIKE '%$query%'")
+					->orWhere('customers.firstname', 'LIKE', "%$query")
+					->orWhere('customers.lastname', 'LIKE', "%$query%");
 				})
 				->where('discount_id', $id)
 				->skip($skip)->take($items)->get();
@@ -297,18 +296,18 @@ class DiscountsController extends \BaseController {
 	/*	$c = Customer::all();
 	return $c;*/
 
-		
-	}
 
-	public function deleteCustomerDiscounts($id)
+}
+
+public function deleteCustomerDiscounts($id)
+{
+	$cd = CustomerDiscount::where('id', $id)->first();
+	if($cd)
 	{
-		$cd = CustomerDiscount::where('id', $id)->first();
-		if($cd)
-		{
-			$cd->delete();
-			return 'success';
-		}
+		$cd->delete();
+		return 'success';
 	}
+}
 
 	/**
 	 * Show the form for editing the specified resource.

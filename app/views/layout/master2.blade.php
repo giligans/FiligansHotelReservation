@@ -6,10 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Title Pages</title>
 	<!-- Bootstrap CSS -->
-	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet"> -->
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 	{{ HTML::style('asset/styles/responsiveslides.css') }}
 	<!-- Latest compiled and minified JS -->	
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="http://lipis.github.io/bootstrap-sweetalert/lib/sweet-alert.css">
 	{{ HTML::style('asset/styles/datepicker.css') }}
@@ -29,85 +32,80 @@
 			bottom: 0;
 			color:white;
 			width: 100%;
-			/* Set the fixed height of the footer here */
+			
 			height: 60px;
 			background :url({{ URL::to("images/background/texture4.png") }});
 		}
 	</style>
-	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-				<!--[if lt IE 9]>
-				<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-				<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-				<![endif]-->
-			</head>
-			@yield('initializeData')
-			<body style='background: url({{ URL::to("images/background/texture3.jpg") }})' ng-controller='@yield("controller")'>
-				<div class='container' style='width:100%'>
-					<div class="row" style='min-height:50px;'>
-						<div class="row" style='background: url({{ URL::to("images/background/texture4.jpg") }});min-height:30px'>
-							<div class="container">
-								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
-									<a  href='{{ URL::to("booking") }}' class="btn btn-xs btn-success pull-right" style='margin:5px;margin-left:10px'>RESERVE ROOM</a>
-									<span style='color:white;font-size:20px;font-family:Open Sans' class='pull-right'>Call us at 8700 for inquiry</span>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<nav class="navbar navbar-default hidden-xs hidden-sm" role="navigation">
-								<div class="container">
-									<div style='height:100px;width:300px;background:url({{ URL::to("images/background/texture2.jpg") }}) black;position:absolute;top:-35px;padding:15px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
-									-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
-									box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
-									<a href='{{ URL::to("/")}}'><img src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
-								</div>
-								<!-- Brand and toggle get grouped for better mobile display -->
-								<ul class="nav navbar-nav navbar-right">
-									<li><a href="{{ URL::to('/')}}">Home</a></li>
-									<li><a href="{{ URL::to('room')}}">Rooms</a></li>
-									<li><a href="{{ URL::to('gallery')}}">Gallery</a></li>
-									<li><a href="{{ URL::to('services')}}">Services</a></li>
-									<li><a href="{{ URL::to('about')}}">About</a></li>
-									<li><a href="{{ URL::to('contact')}}">Contact</a></li>
-								</ul>
-							</div><!-- /.navbar-collapse -->
-						</div>
-					</nav>
-					<nav class="navbar navbar-default visible-xs visible-sm" role="navigation">
-						<!-- Brand and toggle get grouped for better mobile display -->
-						<div style='height:100px;width:100%;background:url({{ URL::to("images/background/texture2.png") }}) black;padding-left:20px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
+	
+</head>
+@yield('initializeData')
+<body style='background: url({{ URL::to("images/background/texture3.jpg") }})' ng-controller='@yield("controller")'>
+	<div class='container-fluid'>
+		<div class="row" style='min-height:50px;'>
+			<div class="row" style='background: url({{ URL::to("images/background/texture4.jpg") }});min-height:30px'>
+				<div class="container">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
+						<a  href='{{ URL::to("booking") }}' class="btn btn-xs btn-success pull-right" style='margin:5px;margin-left:10px'>RESERVE ROOM</a>
+						<span style='color:white;font-size:20px;font-family:Open Sans' class='pull-right'>Call us at 8700 for inquiry</span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<nav class="navbar navbar-default hidden-xs hidden-sm" role="navigation">
+					<div class="container">
+						<div style='height:100px;width:300px;background:url({{ URL::to("images/background/texture2.jpg") }}) black;position:absolute;top:-35px;padding:15px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 						-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
 						box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
-						<a href='{{ URL::to("/")}}'><img class='img-responsive' src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
+						<a href='{{ URL::to("/")}}'><img src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
 					</div>
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="#">Giligans Hotel</a>
-					</div>
-					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse navbar-ex1-collapse">
-						<ul class="nav navbar-nav navbar-right">
-							<li><a href="#">Home</a></li>
-							<li><a href="#">Rooms</a></li>
-							<li><a href="#">Features and Services</a></li>
-							<li><a href="#">About</a></li>
-							<li><a href="#">Contact</a></li>
-						</ul>
-					</div><!-- /.navbar-collapse -->
-				</nav>
+					<!-- Brand and toggle get grouped for better mobile display -->
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="{{ URL::to('/')}}">Home</a></li>
+						<li><a href="{{ URL::to('room')}}">Rooms</a></li>
+						<li><a href="{{ URL::to('gallery')}}">Gallery</a></li>
+						<li><a href="{{ URL::to('services')}}">Services</a></li>
+						<li><a href="{{ URL::to('about')}}">About</a></li>
+						<li><a href="{{ URL::to('contact')}}">Contact</a></li>
+					</ul>
+				</div><!-- /.navbar-collapse -->
 			</div>
+		</nav>
+		<nav class="navbar navbar-default visible-xs visible-sm" role="navigation">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div style='height:100px;width:100%;background:url({{ URL::to("images/background/texture2.png") }}) black;padding-left:20px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
+			-moz-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
+			box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);'>
+			<a href='{{ URL::to("/")}}'><img class='img-responsive' src="http://www.giligansrestaurant.com/site/images/gililogo.png"></a>
 		</div>
-	</div>
-	@if($cpage =='home')
-	<div class="container-content" style='margin-top:10px;background-color:White'>
-		<div class="row" style='padding:10px;padding-top:5px'>
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
-				<div class="callbacks_container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Giligans Hotel</a>
+		</div>
+		
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="#">Home</a></li>
+				<li><a href="#">Rooms</a></li>
+				<li><a href="#">Features and Services</a></li>
+				<li><a href="#">About</a></li>
+				<li><a href="#">Contact</a></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+</div>
+</div>
+@if($cpage =='home')
+<div class="container-content" style='margin-top:10px;background-color:White'>
+	<div class="row" style='padding:10px;padding-top:5px'>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
+			<div class="callbacks_container">
 									<!-- 	<div style='position:absolute;height:50px;width:100%;z-index:1000;top:50px;'>
 											<div style='position:Absolute;height:50px;width:100%;background-color:black;opacity:0.4'>
 											</div>

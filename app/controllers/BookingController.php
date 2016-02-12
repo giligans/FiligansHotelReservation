@@ -25,7 +25,7 @@ class BookingController extends \BaseController {
 			}))->get();	
 			foreach($room as $r)
 			{
-				if($r->roomReserved->count()==0){
+				if($r->roomReserved->count()==0 && $r->status==1){
 					$available_rooms++;
 				}
 			}
@@ -68,7 +68,7 @@ class BookingController extends \BaseController {
 	public function searchList()
 	{
 		$i = Input::all();
-		$query = Booking::with('reservedRoom.room.roomDetails')->whereBetween('check_in', array($i['startdate'], $i['enddate']))
+		$query = Booking::with('reservedRoom.room.roomDetails','remarksHistory')->whereBetween('check_in', array($i['startdate'], $i['enddate']))
 		->orWhereBetween('check_out', array($i['startdate'], $i['enddate']))
 		->orWhereRaw('"'.$i["startdate"].'" between check_in and check_out')
 		->orWhereRaw('"'.$i["enddate"].'" between check_in and check_out')
@@ -78,14 +78,13 @@ class BookingController extends \BaseController {
 	
 	public function searchBooking($id)
 	{
-		$query = Booking::with('reservedRoom_grp.room.roomDetails')->where('id', $id)->first();
+		$query = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')->where('id', $id)->first();
 		if(!empty($query))
 		{
 			return $query;
 		}
 	}
 	
-
 	public function thisYearList()
 	{	
 		$today = date("Y");
@@ -142,7 +141,7 @@ class BookingController extends \BaseController {
 
 		$arr = [];
 		$arr = getallheaders();
-
+		$b = null;
 		$count = null;
 
 		if(isset($arr['Range']))
@@ -157,7 +156,7 @@ class BookingController extends \BaseController {
 			$skip = $arr[0];
 			$skip = ($skip < 0) ? 0 : $skip;
 			$c = null;
-			
+
 			if(isset($_GET['query']))
 			{
 				/*query variables*/
@@ -196,7 +195,7 @@ class BookingController extends \BaseController {
 				}
 				$status_arr = (count($status_arr) > 0 ? $status_arr : array(0,1,2,3,4,5,6) );
 				/*end of query variables*/
-				$count = Booking::with('reservedRoom_grp.room.roomDetails')
+				$count = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 				->where('id', 'LIKE', "%$query%")
 				->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
 				->orWhere('firstname', 'LIKE', "%$query%")
@@ -204,11 +203,10 @@ class BookingController extends \BaseController {
 				->orWhere('code', 'LIKE', "%$query%")
 				->get()->count();
 
-
 				if(isset($_GET['orderBy']) && $_GET['orderBy'] != '')
 				{
 					$orderBy = $_GET['orderBy'];
-					$count = Booking::with('reservedRoom_grp.room.roomDetails')
+					$count = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 					->where(function($query1) use ($query){
 						$query1->where('id', 'LIKE', "%$query%")
 						->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
@@ -227,7 +225,7 @@ class BookingController extends \BaseController {
 					{
 						$status->whereIn('status', $status_arr);
 					})->get()->count();
-					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					$b = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 					->where(function($query1) use ($query){
 						$query1->where('id', 'LIKE', "%$query%")
 						->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
@@ -250,30 +248,27 @@ class BookingController extends \BaseController {
 					->skip($skip)->take($items)->get();
 				}else
 				{
-
 					$orderBy = $_GET['orderBy'];
 					$count = Booking::all()->count();
-					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					$b = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 					->where('id', 'LIKE', "%$query%")
 					->orWhereRaw("concat_ws(' ',firstname,lastname) LIKE '%$query%'")
 					->orWhere('firstname', 'LIKE', "%$query%")
 					->orWhere('lastname', 'LIKE', "%$query%")
 					->orWhere('code', 'LIKE', "%$query%")
 					->skip($skip)->take($items)->get();
-
 				}
 			}else
 			{
-
 				$count = Booking::all()->count();
 				if(isset($_GET['orderBy']) && $_GET['orderBy'] != '')
 				{
 					$orderBy = $_GET['orderBy'];
-					$b = Booking::with('reservedRoom_grp.room.roomDetails')
+					$b = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 					->orderBy("$orderBy", 'DESC')->skip($skip)->take($items)->get();
 				}else
 				{
-					$b = Booking::with('reservedRoom_grp.room.roomDetails')->skip($skip)->take($items)->get();
+					$b = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')->skip($skip)->take($items)->get();
 				}
 			}
 			$response = Response::make($b, 200);
@@ -285,6 +280,7 @@ class BookingController extends \BaseController {
 		}
 
 		$b = Booking::all();
+
 		$response = Response::make($b, 200);
 		$response->header('Content-Ranges', 'test');
 		return $response;
@@ -354,9 +350,20 @@ class BookingController extends \BaseController {
 	{
 		$today = date("Y-m-d H:i:s");
 		$i = Input::all();
+		$bookingRemarks = '';
+		$addition = 0;
+		$deduction = 0;
+		if($i['savethis']==true)
+		{
+			$addition -= $i['price_addition'];
+			$deduction += $i['price_deduction'];
+		}
 		$booking = Booking::where('id', $id)->with('reservedRoom.room.roomDetails')->first();
 		//$booking = ReservedRoom::where('id', $id)->with('room.roomDetails')->first();
 		$old_status= $booking->status;
+		$current_price = $booking->price;
+		$current_price += $addition + $deduction;
+
 		if(!empty($booking))
 		{
 			$booking->status = $i['status'];
@@ -364,16 +371,27 @@ class BookingController extends \BaseController {
 			{
 				$booking->cancelled_at = $today;
 				$booking->paid=0;
+				$booking->price = 0;
 				$booking->cancelled_remarks = $i['cancelled_remarks'];
 			}else if($i['status']==1){
 				$booking->paid = $i['paid'];
 			}else{
-				$booking->paid=0;
+				//$booking->paid=0;
+				$booking->price = $current_price;
 				$booking->cancelled_remarks = '';
 				$booking->cancelled_at = '0000-00-00 00:00:00';
 			}
 			if($booking->save())
 			{
+				if($i['savethis']==true)
+				{
+					$newBookingRemarks  = new BookingRemarksHistory;
+					$newBookingRemarks->additional =$addition;
+					$newBookingRemarks->deduction =$deduction;
+					$newBookingRemarks->remarks = $i['bookingremarks'];
+					$newBookingRemarks->save();
+				}
+
 				$roomReserved = ReservedRoom::where('booking_id', $booking->id)->get();
 				foreach($roomReserved as $rr)
 				{

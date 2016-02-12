@@ -72,6 +72,7 @@
 		</head>
 		@yield('initializeData')
 		<body style='background-image:url({{ URL::to("images/background/texture_admin2.png") }})' ng-controller='@yield("controller")'>
+			@yield('modal')
 			<nav class="navbar navbar-inverse" style='border-radius:0;
 			-webkit-box-shadow: 0px 0px 18px 0px rgba(0,0,0,0.75);
 			-moz-box-shadow: 0px 0px 18px 0px rgba(0,0,0,0.75);
@@ -163,7 +164,8 @@
 	<!-- jQuery -->
 	<script src="//code.jquery.com/jquery.min.js"></script>
 	<!-- Bootstrap JavaScript -->
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
 	<script type="text/javascript" src='http://underscorejs.org/underscore-min.js'></script>
 	<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.min.js'></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular-route.min.js"></script>

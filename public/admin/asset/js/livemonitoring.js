@@ -32,7 +32,7 @@ angular.module('liveMonitoringApp', [], function($interpolateProvider)
 				{
 
 					var statusStr = '';
-					if(val.room_reserved.length > 0)
+					if(val.room_reserved.length > 0 && val.status==1)
 					{
 						var intStatus = parseInt(val.room_reserved[0].status);
 						switch(intStatus)

@@ -74,6 +74,17 @@ roomCtrl
 							<input type='text' class='form-control' ng-model='updateroom.room_no' ng-keyup=''>
 						</td>
 					</tr>
+					<tr style='margin-top:10px'>
+						<td style=''>
+							Room Status
+						</td>
+						<td style=''>
+							<select name="availability" ng-model='updateroom.status' id="input" class="form-control" required="required">
+								<option value="1">Available</option>
+								<option value="0">Unvailable</option>
+							</select>
+						</td>
+					</tr>
 				</table>
 			</div>
 			<div class="modal-footer">
@@ -157,8 +168,8 @@ roomCtrl
 								<tr ng-repeat='r in room_qty | filter:roomFilter'>
 									<td> [[ (r.room_no==0 || r.room_no==null) ? "Not yet defined" : r.room_no ]]</td>
 									<td>
-										<span class="label label-success" ng-show='r.room_reserved.length==0'>Available</span>
-										<span class="label label-danger" ng-show='r.room_reserved.length!=0'>Not available</span>
+										<span class="label label-success" ng-show='r.room_reserved.length==0 && r.status==1'>Available</span>
+										<span class="label label-danger" ng-show='r.room_reserved.length!=0 || r.status==0'>Not available</span>
 									</td>
 									<td><button type="button" class="btn btn-xs btn-warning" ng-click='updateRoomModal(r, $index)'>Update</button>
 										<button type="button" class="btn btn-xs btn-danger" ng-disabled='r.status!=1' ng-click='deleteSpecificRoom(r, $index)' ng-hide='r.room_reserved.length!=0'>Delete</button></td>

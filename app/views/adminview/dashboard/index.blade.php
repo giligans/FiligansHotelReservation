@@ -25,7 +25,7 @@ indexCtrl
 </div>
 <div class="row">
 	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-		<h3>Recent Bookings <a href='{{ URL::to("adminsite/booking") }}' class="btn btn-xs btn-info">view all</a></h3> 
+		<h3>Recent Bookings <a href='{{ URL::to("adminsite/booking") }}' class="btn btn-xs btn-info">view all</a> <a href='{{ URL::to("adminsite/monitoring") }}' class="btn btn-xs btn-success">Go to live monitoring system</a></h3> 
 		<table class="table table-hover table-bordered  table-striped">
 			<thead>
 				<tr>

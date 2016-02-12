@@ -24,8 +24,8 @@ roomController
 	}
 </style>
 <div style='width:100%;padding:10px'>
-<h2 style="font-family: 'Oswald', sans-serif;">Rooms</h2>
-<hr>
+	<h2 style="font-family: 'Oswald', sans-serif;">Rooms</h2>
+	<hr>
 </div>
 <div class="modal fade" id="availability">
 	<div class="modal-dialog">
@@ -144,37 +144,20 @@ roomController
 
 						</div><!-- End row -->
 
-
-<!-- 		<div class="col-xs-12 col-sm-12  col-lg-4" style='border:1px solid #d8d8d8;margin:0px'>
-			<div class="row" style='padding:10px;'>
-				<center>	<img src="{{ URL::to('image/medium/'.$r->roomImages[0]->photo->filename.'/') }}" class='img-responsive img-thumbnail' style=''></center>
-				<h3 style='margin:5px;font-family:Open Sans' class='roomtitle'>{{{ $r->name }}}</h3>
-				<p><span>Features:</span> <span class="label label-primary">WIFI</span> <span class="label label-primary">GYM</span></p>
-				<p style='margin-top:-10px;'><span>Description: </span> {{{ $r->short_desc }}}</p>
-			</div>
-			<div class="row">
-				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style='padding:5px;'>
-					<a href='{{ URL::to("room/".$r->id) }}' class="btn btn-large btn-block btn-info">		<span class="glyphicon glyphicon glyphicon-info-sign"></spa> Read More</a>
+						@endforeach
+					</div>
 				</div>
-				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style='padding:5px;'>
-					<button type="button" class="btn btn-large btn-block btn-danger" ng-click='checkAvailability({{ $r }})'> 		<span class="glyphicon glyphicon-calendar" style='color:gold'></span> Check Availability</button>
-				</div>
-			</div>
-		</div> -->
-		@endforeach
-	</div>
-</div>
-@stop
-@section('scripts')
-{{ HTML::script('asset/scripts/client/room.js') }}
-{{ HTML::script('asset/scripts/moment.js') }}
-{{ HTML::script('asset/scripts/angular-moment.min.js') }}
-{{ HTML::script('asset/scripts/bootstrap-datepicker.js')}}
+				@stop
+				@section('scripts')
+				{{ HTML::script('asset/scripts/client/room.js') }}
+				{{ HTML::script('asset/scripts/moment.js') }}
+				{{ HTML::script('asset/scripts/angular-moment.min.js') }}
+				{{ HTML::script('asset/scripts/bootstrap-datepicker.js')}}
 
-<script type="text/javascript">
-	$('.checkin').datepicker({
-		format: 'mm/dd/yyyy',
-		startDate: '-3d'
-	})
-</script>
-@stop
+				<script type="text/javascript">
+					$('.checkin').datepicker({
+						format: 'mm/dd/yyyy',
+						startDate: '-3d'
+					})
+				</script>
+				@stop

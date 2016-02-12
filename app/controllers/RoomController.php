@@ -27,9 +27,9 @@ class RoomController extends \BaseController {
 		foreach($room as $r)
 		{
 			$available = 0;
-			foreach($r->roomQty as $roomQty)
+			foreach($r->roomQty as $roomQty )
 			{
-				if(count($roomQty->roomReserved)==0 )
+				if(count($roomQty->roomReserved)==0 || $roomQty->status==1)
 				{
 					$available++;
 				}
@@ -37,7 +37,7 @@ class RoomController extends \BaseController {
 				{
 					foreach($roomQty->roomReserved as $roomReserved)
 					{
-						if($roomReserved->status==3)
+						if($roomReserved->status==3 || $roomReserved->status==5)
 						{
 							$available++;
 						}
@@ -74,7 +74,7 @@ class RoomController extends \BaseController {
 				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
 			});
 		}))->get();
-	
+
 		foreach($room as $r)
 		{
 		//$available_rooms = $r;
@@ -126,7 +126,7 @@ class RoomController extends \BaseController {
 				{
 					foreach($roomQty->roomReserved as $roomReserved)
 					{
-						if($roomReserved->status==3)
+						if($roomReserved->status==3 || $roomReserved->status==5)
 						{
 							$available++;
 						}
@@ -446,6 +446,7 @@ class RoomController extends \BaseController {
 		$r = RoomQty::where('id', $id)->first();
 		if(!empty($r)){
 			$r->room_no = $i['room_no'];
+			$r->status = $i['status'];
 			if($r->save()){
 
 				return $r;

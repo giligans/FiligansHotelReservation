@@ -47,7 +47,6 @@ bookingController
 				<h4 class="modal-title">Invoice for booking # <span  ng-bind='selected_invoiceInfo.id'></span></h4>
 			</div>
 			<div class="modal-body">
-				
 				<div class="container" style='width:100%;margin-top:-30px'>
 					<div class="row">
 						<div class="col-xs-12">
@@ -122,7 +121,7 @@ bookingController
 												</tr>
 												<tr>
 													<td colspan=4 style='text-align:right;font-weight:bold'>Total</td>
-													<td style='text-align:right'>500</td>
+													<td style='text-align:right' ng-bind='selected_invoiceInfo.price'>500</td>
 												</tr>
 											</tbody>
 										</table>
@@ -147,11 +146,24 @@ bookingController
 												</tr>
 											</thead>
 											<tbody>
-												<tr >
+												<tr>
 													<td class='text-center' ng-bind='selected_invoiceInfo.datecreated'></td>
-													<td class='text-center'>Hotel Accomodation</td>
+													<td class='text-center'> Hotel Accomodation </td>
 													<td class='text-center' ng-bind='selected_invoiceInfo.price'>100</td>
 													<td class='text-center' ng-bind='selected_invoiceInfo.paid'>0</td>
+												</tr>
+											<!-- 	<tr>
+													<td class='text-center' ng-bind='selected_invoiceInfo.datecreated'></td>
+													<td class='text-center'> Customer Paid </td>
+													<td class='text-center' ng-bind='selected_invoiceInfo.paid'>100</td>
+													<td class='text-center' ng-bind='selected_invoiceInfo.paid'>0</td>
+												</tr> -->
+
+												<tr ng-repeat='remarks in selected_invoiceInfo.remarks_history'>
+													<td class='text-center' ng-bind='remarks.datecreated'></td>
+													<td class='text-center' ng-bind='remarks.remarks'>Hotel Accomodation</td>
+													<td class='text-center' ng-bind='remarks.additional'>100</td>
+													<td class='text-center' ng-bind='remarks.deduction'>0</td>
 												</tr>
 												<tr>
 													<td colspan=2>&nbsp;</td>
@@ -288,7 +300,7 @@ bookingController
 						<td>
 							Subtotal
 						</td>
-						<td>X
+						<td>
 							<label ng-bind='updateBooking.price -(updateBooking.price * 0.12) | currency: "P "'>100</label>
 						</td>
 					</tr>
@@ -316,10 +328,20 @@ bookingController
 					</tr>
 				</table>
 			</div>
+			
+			<div  class="well" style='margin-top:10px;'>
+				<h5 style='font-family:Open Sans'>Additional Options <small>Every changes made here will be listed in the customer's invoice</small></h5>
+				<label>Price deduction <SMALL style='color:green'>(credits)</SMALL></label>
+				<input type='number' ng-model='price_deduction' class='form-control' value=0>
+				<label>Price Addition <small style='color:gold'>(Charges)</small></label>
+				<input type='number' ng-model='price_addition' class='form-control' value=0>
+				<label>Remarks</label>
+				<textarea class='form-control' ng-model='bookingremarks' ng-required="true"></textarea>
+			</div>
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='(updateBooking.status==5 && (updateBooking.cancelled_remarks==null || updateBooking.cancelled_remarks=="")) || (updateBooking.status==1 && paid==false)'>Save changes</button>
+			<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='(updateBooking.status==5 && (updateBooking.cancelled_remarks==null || updateBooking.cancelled_remarks=="")) || (updateBooking.status==1 && paid==false) || ((price_deduction!=0 || price_addition!=0) && bookingremarks =="")'>Save changes</button>
 		</div>
 	</div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
@@ -435,7 +457,7 @@ bookingController
 														
 														<tr>
 															<td colspan=4 style='text-align:right;font-weight:bold'>Total</td>
-															<td style='text-align:right'>500</td>
+															<td style='text-align:right' ng-bind='invoiceInfo.price'></td>
 														</tr>
 													</tbody>
 												</table>
@@ -462,6 +484,13 @@ bookingController
 													</thead>
 													<tbody>
 														<tr >
+															<td class='text-center' ng-bind='invoiceInfo.datecreated'></td>
+															<td class='text-center'>Hotel Accomodation</td>
+															<td class='text-center' ng-bind='invoiceInfo.price'>100</td>
+															<td class='text-center'>0</td>
+														</tr>
+
+														<tr ng-repeat='remarks in invoiceInfo.remarks_history'>
 															<td class='text-center' ng-bind='invoiceInfo.datecreated'></td>
 															<td class='text-center'>Hotel Accomodation</td>
 															<td class='text-center' ng-bind='invoiceInfo.price'>100</td>

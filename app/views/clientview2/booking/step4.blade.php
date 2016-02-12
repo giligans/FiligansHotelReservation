@@ -163,6 +163,8 @@ bookingController
 									</table>
 								</div>
 								<!-- <textarea class='form-control' placeholder='Remarks'></textarea> -->
+								<label>Discount Code</label>
+								<input type='text' class='form-control' placeholder='Enter a code'>
 								<label>
 									<input type="checkbox" value="" ng-model='terms'>
 									Agree to terms and condition.

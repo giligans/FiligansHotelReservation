@@ -20,7 +20,6 @@ class ActivitiesController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-
 	public function logs()
 	{
 		//$cpage = 'activity';

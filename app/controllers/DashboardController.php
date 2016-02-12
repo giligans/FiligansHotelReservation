@@ -107,7 +107,7 @@ class DashboardController extends \BaseController {
 	{
 		$i = array();
 		$today = Date('Y-m-d');
-
+		
 		$i['checkin'] = Date('Y-m-d');
 		$i['checkout'] = new DateTime('tomorrow');
 		$i['checkout'] = $i['checkout']->format('Y-m-d').' 11:59:00';

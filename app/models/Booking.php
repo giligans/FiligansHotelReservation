@@ -6,7 +6,10 @@ class Booking extends \Eloquent {
 
 
 
-	
+	public function remarksHistory()
+	{
+		return $this->hasMany('BookingRemarksHistory','booking_id','id');
+	}
 	public function getChangeAttribute()
 	{
 		return 0;
