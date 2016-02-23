@@ -149,8 +149,16 @@ bookingController
 				<div class="clearfix"></div>
 				<small style='float:right'> <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.checkin'))); ?> </span> to <span style='color:red'><?php echo date("D, d M Y", strtotime(Session::get('reservation.display_checkout'))); ?> </span><br> at 12:00 NN</small>
 			</center>
+
+
 		</div>
-		<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" style='border-left:1px solid #d8d8d8;margin-top:20px'>
+		<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" style='border-left:1px solid #d8d8d8;margin-top:20px'>	
+			@if(Session::has('error'))
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				<strong>Oops!</strong> {{ Session::get('error') }}
+			</div>
+			@endif
 			<form method='POST' action='{{ URL::to("booking/step2") }}'>
 				<input type='hidden' name='checkin' value="3" >
 				<input type='hidden' name='checkout' value="3" >

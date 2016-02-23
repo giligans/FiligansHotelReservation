@@ -30,6 +30,24 @@ bookingController
 		background-color: #ccc;
 		z-order: 0;
 	}
+	input.fail
+	{
+		border:2px solid red;
+	}
+	input.success
+	{
+		border:2px solid green;
+	}
+
+	label.success
+	{
+		color:green;
+	}
+
+	label.fail
+	{
+		color:Red;
+	}
 	.stepwizard-step {
 		display: table-cell;
 		text-align: center;
@@ -126,7 +144,7 @@ bookingController
 							</div>
 							<div class="panel-body">
 								<div class="table-responsive">
-									<table class="table table-condensed">
+									<table class="table table-condensed" id='invoice-table'>
 										<thead>
 											<tr>
 												<td><strong>Room Type</strong></td>
@@ -153,23 +171,45 @@ bookingController
 												<td class="text-right">{{ $rooms['room_details']['price'] * $rooms['quantity'] * Session::get('reservation.nights') }}</td>
 											</tr>
 											@endforeach
-											
 
 											<tr style='border-top:2px solid #777'>
-												<td colspan=4 style='text-align:right;font-weight:bold'>Total</td>
-												<td style='text-align:right'>{{ $total }}</td>
+												<td colspan=4 style='text-align:right;font-weight:bold'>Sub total</td>
+												
+												<td style='text-align:right'>P{{ number_format($total,2) }}
+
+												</td>
 											</tr>
+											@if(Session::has('reservation.customerdiscount'))
+											<tr>
+												<td colspan=4 style='text-align:right;font-weight:bold'>Membership Discount</td>
+												
+												<td style='text-align:right'>-P{{ number_format(Session::get('reservation.customerdiscountprice'),2) }}</td>
+											</tr>
+											@endif
+											<tr id='total-amount'>
+												<td colspan=4 style='text-align:right;font-weight:bold'>Total Price</td>
+												<input type='hidden' id='subtotal' value="{{ number_format(computeDiscount($total, Session::get('reservation.customerdiscountprice')),2) }}">
+
+												<td style='text-align:right' id='total-amount-val'>P{{ number_format(computeDiscount($total, Session::get('reservation.customerdiscountprice')),2) }}</td>
+											</tr>
+
 										</tbody>
 									</table>
 								</div>
-								<!-- <textarea class='form-control' placeholder='Remarks'></textarea> -->
-								<label>Discount Code</label>
-								<input type='text' class='form-control' placeholder='Enter a code'>
-								<label>
-									<input type="checkbox" value="" ng-model='terms'>
-									Agree to terms and condition.
-								</label>
 								<form action='{{ URL::to("booking/payment") }}' method="POST">
+									<!-- <textarea class='form-control' placeholder='Remarks'></textarea> -->
+									<label class='pull-left'>Discount Code </label>
+									<!-- <button type="button" ng-show='discounted' class="pull-right btn btn-xs btn-success"><span class="glyphicon glyphicon-glyphicon glyphicon-check" aria-hidden="true"></span> Use this Code</button> -->
+									<input name='discountCode' type='text' ng-class='{"success": discounted && discounted!=null, "fail": discounted==false && discounted!=null }' ng-model='discountCode' class='form-control' placeholder='Enter a code'>
+									<label  ng-class='{"success": discounted && discounted!=null, "fail": discounted==false && discounted!=null }' style='display:block' ng-show='discountedMessage!=null' ng-bind='discountedMessage'>
+
+									</label>
+
+									<label style='display:block'>
+										<input type="checkbox" value="" ng-model='terms' required>
+										Agree to terms and condition.
+									</label>
+
 									<button type="submit" class="btn btn-large btn-block btn-primary" ng-disabled='terms==false'>Proceed to checkout (via Paypal)</button>
 								</form>
 								<div class="checkbox">
@@ -189,8 +229,73 @@ bookingController
 	angular.module('giligansApp', [], function($interpolateProvider){
 		$interpolateProvider.startSymbol('[[');
 		$interpolateProvider.endSymbol(']]');
-	}).controller('bookingController', ['$scope', function($scope){
+	}).factory('bookingFactory', function($http)
+	{
+		return{
+			checkCode : function(code)
+			{
+				return $http.post('/checkcode/'+code);
+			}
+		}
+	})
+	.controller('bookingController', ['$scope','bookingFactory', function($scope, bookingFactory){
+		$scope.discounted = null;
+		$scope.discountedMessage = null;
 		$scope.terms = false;
-	}])
+		$scope.discountedMessage = null;
+		//var total_amount = parseInt($('#subtotal').val());
+
+		$scope.$watch('discountCode', function(newVal,oldVal)
+		{
+			
+			if(oldVal != newVal)
+			{
+
+				if(newVal.length > 5)
+				{
+					$scope.discountedMessage = 'verifiying code...'
+					bookingFactory.checkCode(newVal).success(function(data)
+					{
+						console.log(data);
+						if(data.code!=1)
+						{
+							
+							$scope.discounted=false;
+							$('#total-amount-val').html('P '+$('#subtotal').val())
+							$('.coupon-discount').remove();
+						}else
+						{
+							$("<tr class='coupon-discount'><td colspan=4 style='text-align:right;font-weight:bold'>Coupon Discount </td><td style='text-align:right'>-"+data.discount.effect_str+"</td></tr>").insertBefore('#total-amount')
+							//$('#total-amount').prepend('<tr><td colspan=4>test</td><td>0</td>')
+							if(data.discount.effect_type=='0')
+							{
+
+								total_amount = parseInt($('#subtotal').val()) - data.discount.effect;
+							}else
+							{
+								total_amount = parseInt($('#subtotal').val()) -  parseInt($('#subtotal').val()) * (data.discount.effect / 100);
+							}
+							$('#total-amount-val').html('P '+total_amount)
+							$scope.discounted=true;
+						}
+						$scope.discountedMessage = angular.copy(data.content);
+
+					}).error(function()
+					{
+						$scope.discountedMessage='Something went wrong. Please try again later.'
+						$('.coupon-discount').remove();
+						$scope.discounted = false;
+					})
+				}else
+				{
+					$('#total-amount-val').html('P '+$('#subtotal').val())
+					$scope.discounted = false;
+					$('.coupon-discount').remove();
+					$scope.discountedMessage = null;
+				}
+			}
+
+		})
+}])
 </script>
 @stop

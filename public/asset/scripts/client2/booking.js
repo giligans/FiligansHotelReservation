@@ -6,7 +6,11 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
 	return {
 		test : function(){
 			alert('hey')
-		}
+		},
+    checkCode : function()
+    {
+      alert('test');
+    }
 	};
 }]).controller('bookingController', ['$scope', 'bookingFactory', function($scope, bookingFactory){
 	//bookingFactory.test();
@@ -15,6 +19,8 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
     checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
     display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
   }
+
+  
   $scope.nights=1;
   $scope.$watch('availability.checkin', function(newVal, oldVal){
     if($scope.nights>1){

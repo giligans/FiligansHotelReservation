@@ -30,6 +30,9 @@
 				"app/tests/TestCase.php"
 				]
 				},
+				"files": [
+				"app/helpers.php"
+				],
 				"scripts": {
 					"post-install-cmd": [
 					"php artisan clear-compiled",

@@ -2,18 +2,38 @@
 
 class Booking extends \Eloquent {
 	protected $fillable = [];
-	protected $appends = ['datecreated','checkindate','checkoutdate', 'nights','change'];
-
-
+	protected $appends = ['datecreated','checkindate','checkoutdate', 'nights','change', 'total_deduction', 'total_additional'];
 
 	public function remarksHistory()
 	{
 		return $this->hasMany('BookingRemarksHistory','booking_id','id');
 	}
+
+	public function getTotalDeductionAttribute()
+	{
+		$total = 0;
+		foreach($this->remarksHistory as $h)
+		{
+			$total+=(int)$h->deduction;
+		}
+		return $total;
+	}
+
+	public function getTotalAdditionalAttribute()
+	{
+		$total = 0;
+		foreach($this->remarksHistory as $h)
+		{
+			$total+=$h->addition;
+		}
+		return $total;
+		//return $this->remarksHistory;
+	}
 	public function getChangeAttribute()
 	{
 		return 0;
 	}
+
 	public function getDatecreatedAttribute()
 	{
 		$newDate = date("F j, Y", strtotime($this->created_at));
@@ -50,6 +70,7 @@ class Booking extends \Eloquent {
 	{
 		return $this->status==2;
 	}
+
 	public function isOverdue()
 	{
 		$today = Carbon::now();
@@ -61,11 +82,8 @@ class Booking extends \Eloquent {
 			}
 		}
 		
-		
 		return false;
 	}
-
-
 
 	public function getCheckindateAttribute()
 	{

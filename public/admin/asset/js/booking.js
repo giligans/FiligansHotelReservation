@@ -3,6 +3,10 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 	$interpolateProvider.endSymbol(']]');
 }).factory('bookingFactory', ['$http', function($http){
 	return {
+		checkMembership : function(membership_id)
+		{
+			return $http.get('/checkmembership/'+membership_id);
+		},
 		getBookingList : function()
 		{
 			return $http.get('/adminsite/getbookinglist');
@@ -70,19 +74,39 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 		},
 		bookingStep3 : function(data, id)
 		{
-			console.log(data);
-			var customer_info = {
-				booking_id : id,
-				firstname : data.firstname,
-				lastname : data.lastname,
-				address : data.address,
-				contact_no : data.contact_no
+			console.log('this is just a test',data);
+			var customer_info = null;
+
+			if(data.membership_id)
+			{
+				
+				customer_info = {
+					booking_id : id,
+					membership_id : data.membership_id,
+					firstname : data.firstname,
+					lastname : data.lastname,
+					address : data.address,
+					contact_no : data.contact_no
+				}
+			}else
+			{
+				
+				customer_info = {
+					booking_id : id,
+
+					firstname : data.firstname,
+					lastname : data.lastname,
+					/*address : data.address,
+					contact_no : data.contact_no*/
+				}
 			}
+			console.log('this is just a test',customer_info);
 			return $http.post('/adminsite/currentbooking/save', customer_info);
 		}
 	}
 }]).controller('bookingController', ['$scope', 'bookingFactory','$timeout','$location', function($scope, bookingFactory, $timeout, $location){
 	/*for table*/
+
 	$scope.url='/adminsite/getbookinglist'
 	$scope.urlParams = {
 		query : '',
@@ -148,6 +172,32 @@ angular.module('adminApp', ['ui.bootstrap','angularFileUpload','angularMoment', 
 			5 : false,
 			6 : false
 		}
+	}
+	$scope.membershipMessage = null;
+	$scope.membership = null;
+	$scope.isMember = null;
+	$scope.validateMembership = function()
+	{
+		$scope.membershipMessage = 'Validating...'
+		bookingFactory.checkMembership($scope.membership_id).success(function(data)
+		{
+			if(data.code!=1)
+			{
+
+				$scope.isMember=false;
+
+			}else
+			{
+				$scope.customer = angular.copy(data.membership);
+				$scope.isMember=true;
+			}
+			$scope.membershipMessage = angular.copy(data.content);
+
+		}).error(function()
+		{
+			$scope.membershipMessage='Something went wrong. Please try again later.'
+			$scope.discounted = false;
+		})
 	}
 	$scope.bookingremarks='';
 	$scope.price_deduction =0;
@@ -258,11 +308,16 @@ $scope.proceedPayment = function()
 }
 $scope.saveCustomerInformation = function()
 {
+	if($scope.isMember)
+	{
+		$scope.customer.membership_id = angular.copy($scope.membership_id);		
+	}
+	console.log('customer', $scope.customer);
 	bookingFactory.bookingStep3($scope.customer, $scope.currentBooking).success(function(data)
 	{
 		$scope.loading = true;
 		$scope.displayform2 = false;
-		console.log($scope.bookingInfo, 'bookinginfo')
+		
 		bookingFactory.getBookingInfo($scope.bookingInfo.bookingId).success(function(data)
 		{
 			$scope.invoiceInfo = angular.copy(data);
@@ -314,13 +369,16 @@ $scope.advanceSearch = function()
 }
 $scope.$watch('anonymous', function(newVal, oldVal)
 {
-	if(newVal)
+	if(newVal != oldVal)
 	{
+		$scope.membership = null;
+		$scope.isMember = null;
 		$scope.customer =
 		{
 			firstname : 'n/a',
 			lastname : 'n/a',
 			address : 'n/a',
+			
 			contact_no : 'n/a'
 		}
 	}
@@ -369,6 +427,7 @@ $scope.$watch('nights', function(newVal, oldVal){
 	}
 // console.log($scope.availability.checkout)
 })
+
 $('#newBooking').modal('show');
 }
 $scope.addMoreRoom = function()
@@ -376,26 +435,28 @@ $scope.addMoreRoom = function()
 	var bookedRooms = angular.copy($scope.bookingInfo.rooms);
 	var bookingId = $scope.bookingInfo.bookingId || false;
 	$scope.loading=true;
-$scope.moreRooms = true; //this will hide some form fields
-$scope.available = 5;
-bookingFactory.bookingStep2($scope.availability, $scope.quantity, $scope.bookingInfo.bookingId).success(function(data)
-{
-	bookedRooms.push(data.rooms);
-	$scope.bookingInfo =
+	$scope.moreRooms = true; 
+	$scope.available = 5;
+	bookingFactory.bookingStep2($scope.availability, $scope.quantity, $scope.bookingInfo.bookingId).success(function(data)
 	{
-		rooms : bookedRooms,
-		bookingId : data.booking_id
-	}
-}).error();
-$timeout(function()
-{
-	$scope.loading=false;
-},500);
+		bookedRooms.push(data.rooms);
+		$scope.bookingInfo =
+		{
+			rooms : bookedRooms,
+			bookingId : data.booking_id
+		}
+	}).error();
+	$timeout(function()
+	{
+		$scope.loading=false;
+	},500);
 }
+
 $scope.executePayment = function()
 {
 	
 }
+
 $scope.publishBooking = function()
 {
 	$scope.loading=true;
@@ -481,7 +542,7 @@ function loadBookingList(){
 					checkout = moment($scope.booking[counter].check_out.date);
 					$scope.booking[counter].nights = checkout.diff(checkin, 'days')+1;
 				}
-				console.log($scope.booking)
+				console.log('booking',$scope.booking)
 			}else{
 				$scope.empty = true;
 			}

@@ -62,24 +62,23 @@ class CustomersController extends \BaseController {
 	/*	$c = Customer::all();
 	return $c;*/
 }
-
-	/**
-	 * Show the form for creating a new resource.
-	 * GET /customers/create
-	 *
-	 * @return Response
-	 */
-	public function create()
+	public function checkMembership($membership_id)
 	{
-		//
-	}
+		$membership = new Customer;
+		$output = array();
+		if($membership = $membership->validateMembership($membership_id))
+		{
+			
+				$output['code'] = 1;
+				$output['content'] = 'Membership is available';
+				$output['membership'] = $membership->toArray();
+			return json_encode($output);
+		}
 
-	/**
-	 * Store a newly created resource in storage.
-	 * POST /customers
-	 *
-	 * @return Response
-	 */
+		$output['code'] = '0';
+		$output['content'] = 'This membership isn\'t available';
+		return json_encode($output);
+	}
 	public function store()
 	{
 

@@ -1,4 +1,7 @@
 @extends('layout.master2')
+@section('controller')
+homeController
+@stop
 @section('styles')
 <style type="text/css">
 
@@ -100,4 +103,15 @@
 
 </div>
 </div>
+@stop
+
+@section('scripts')
+<script type="text/javascript">
+	angular.module('giligansApp', [], function($interpolateProvider){
+		$interpolateProvider.startSymbol('[[');
+		$interpolateProvider.endSymbol(']]');
+	}).controller('homeController', ['$scope', function($scope){
+	//	alert('hey')
+}])
+</script>
 @stop

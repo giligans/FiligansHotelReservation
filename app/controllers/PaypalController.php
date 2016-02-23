@@ -25,16 +25,17 @@ class PaypalController extends BaseController
     {
         $payer = new Payer();
         $i = [];
+        $input = Input::all();
+        $membership_discount = (Session::has('reservation.customerdiscount')) ?  number_format(Session::get('reservation.customerdiscountprice'),2) : 0;
+        $coupon_discount = 0;
+        $total_discount = 0;
         $i['checkin'] = Session::get('reservation')['checkin'];
         $i['checkout'] = Session::get('reservation')['checkout'];
         $i['total_nights'] = Session::get('reservation')['nights'];
         $total_price = 0;
         $tax_price = 0;
         $item = [];
-//return Session::get('reservation');
-//return Session::get('reservation')['reservation_room'][0]['room_details']['price'];
         $payer->setPaymentMethod('paypal');
-        /*$roomKey variable for indexing the $rooms array.*/
 
         foreach(Session::get('reservation')['reservation_room'] as $roomKey=>$rooms)
         {
@@ -56,37 +57,75 @@ class PaypalController extends BaseController
                 if($available->roomReserved== '[]')
                 {
                     $item[$roomKey] = new Item();
-$item[$roomKey]->setName($rooms['room_details']['name']) // item name
-->setDescription("Room \"".$rooms['room_details']['name']."\". P ".$rooms['room_details']['price']." per night (".$i['total_nights']." nights)")
-->setCurrency('PHP')
-->setQuantity($rooms['quantity'])
-->setPrice($rooms['room_details']['price']*$i['total_nights']);
-}
-}
-} //end of foreach
-/*gathering the items*/
+                    $item[$roomKey]->setName($rooms['room_details']['name']) 
+                    ->setDescription("Room \"".$rooms['room_details']['name']."\". P ".$rooms['room_details']['price']." per night (".$i['total_nights']." nights)")
+                    ->setCurrency('PHP')
+                    ->setQuantity($rooms['quantity'])
+                    ->setPrice($rooms['room_details']['price']*$i['total_nights']);
+                }
+            }
 
-$item_list = new ItemList();
-$item_list->setItems($item);
+        } 
 
-$tax_price = $total_price*0.12;
-/*set tax*/
-$details = new Details();
-$details
-->setSubtotal($total_price);
+        if(isset($input['discountCode']))
+        {
+            $discount = Discount::where('code', $input['discountCode'])->first();
+            if($discount)
+            {
 
-/*computing the amout*/
-$amount = new Amount();
-$amount->setCurrency('PHP')
-->setDetails($details)
-->setTotal($total_price);
+                if($discount->used ==null || $discount->used =='')
+                {
 
-/*creation of transaction starts here*/
-$transaction = new Transaction();
-$transaction->setAmount($amount)
-->setItemList($item_list)
-->setDescription('Filigans Hotel Reservation');
-$redirect_urls = new RedirectUrls();
+                 $coupon_discount = $discount->calculateDiscount($total_price, $discount->effect, $discount->effect_type);
+
+                 $discount->used = date('Y-m-d H:i:s');
+                 $discount->save();
+             }
+         }
+
+     }
+
+     $total_discount = -$membership_discount - $coupon_discount;
+     $total_price += $total_discount;
+
+    Session::put('total_price', $total_price);
+     if($membership_discount!=0)
+     {
+        Session::put('hasMembershipDiscount', $membership_discount);
+    }
+    if($coupon_discount!=0)
+    {
+        Session::put('hasCouponDiscount', $coupon_discount);
+    }
+
+    $discount1 = new Item();
+    $discount1->setName('Discount') 
+    ->setDescription("Reservation Discount")
+    ->setCurrency('PHP')
+    ->setQuantity(1)
+    ->setPrice($total_discount);
+    array_push($item, $discount1);
+    $item_list = new ItemList();
+    $item_list->setItems($item);
+
+    $tax_price = $total_price*0.12;
+    /*set tax*/
+    $details = new Details();
+    $details
+    ->setSubtotal($total_price);
+
+    /*computing the amout*/
+    $amount = new Amount();
+    $amount->setCurrency('PHP')
+    ->setDetails($details)
+    ->setTotal($total_price);
+
+    /*creation of transaction starts here*/
+    $transaction = new Transaction();
+    $transaction->setAmount($amount)
+    ->setItemList($item_list)
+    ->setDescription('Filigans Hotel Reservation');
+    $redirect_urls = new RedirectUrls();
 $redirect_urls->setReturnUrl(URL::route('payment.status')) // Specify return URL
 ->setCancelUrl(URL::route('payment.status'));
 $payment = new Payment();
@@ -97,10 +136,13 @@ $payment->setIntent('Sale')
 
 try {
     $payment->create($this->_api_context);
-} catch (\PayPal\Exception\PPConnectionException $ex) {
+
+} catch (PayPal\Exception\PayPalConnectionException $ex) {
+
     if (\Config::get('app.debug')) {
         echo "Exception: " . $ex->getMessage() . PHP_EOL;
         $err_data = json_decode($ex->getData(), true);
+        return $err_data;
         exit;
     } else {
         die('Some error occur, sorry for inconvenient');
@@ -143,11 +185,12 @@ public function getPaymentStatus()
     $result = $payment->execute($execution, $this->_api_context);
     /*echo '<pre>';print_r($result);echo '</pre>';exit; // DEBUG RESULT, remove it later*/
 if ($result->getState() == 'approved') { // payment made
-    // $tax = null;
+    // $tax = null; 
     $total_price = null;
     $i = [];
     $i['checkin'] = Session::get('reservation')['checkin']. '12:00:00';
     $i['checkout'] = Session::get('reservation')['checkout']. '11:59:00';
+  
     $customerinformation = Session::get('reservation.customerinformation');
     $count = 0; //for test
     $count1 = 0; //for test
@@ -161,7 +204,30 @@ if ($result->getState() == 'approved') { // payment made
     $new_booking->check_in = $i['checkin'];
     $new_booking->check_out = $i['checkout'];
     $new_booking->payment_type= 'paypal';
+    $new_booking->paypal_paymentId = Input::get('PayerID');
     $new_booking->save();
+
+    if(Session::has('hasMembershipDiscount'))
+    {
+        $booking_remarks = new BookingRemarksHistory;
+        $booking_remarks->remarks ="Membership Discount";
+        $booking_remarks->deduction =  Session::get('hasMembershipDiscount');
+        $booking_remarks->booking_id = $new_booking->id;
+        $booking_remarks->save();
+        Session::forget('hasMembershipDiscount');
+    }
+    
+    if(Session::has('hasCouponDiscount'))
+    {
+        $booking_remarks = new BookingRemarksHistory;
+        $booking_remarks->remarks ="Coupon Discount";
+        $booking_remarks->deduction =  Session::get('hasCouponDiscount');
+        $booking_remarks->booking_id = $new_booking->id;
+        $booking_remarks->save();
+        Session::forget('hasCouponDiscount');
+    }
+    
+
     foreach(Session::get('reservation')['reservation_room'] as $rooms)
     {
         $count++;
@@ -177,7 +243,7 @@ if ($result->getState() == 'approved') { // payment made
             {
                 $query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
             });
-        }))->where('room_id', $room_id)->get();
+        }))->where('room_id', $room_id)->where('status',1)->get();
 
         foreach($room_qty as $available)
         {
@@ -189,45 +255,46 @@ if ($result->getState() == 'approved') { // payment made
         for($counter = 0; $counter<$rooms['quantity']; $counter++){
             array_push($booked_room, $available_rooms[$counter]);
         }
-} //end of foreach
+    } 
 
-$total = 0;
-if(!empty($booked_room))
-{
-    foreach($booked_room as $b)
-    {   
-        $roomprice = $b->roomPrice->price * Session::get('reservation.nights');
+    $total = 0;
+    if(!empty($booked_room))
+    {
+        foreach($booked_room as $b)
+        {   
+            $roomprice = $b->roomPrice->price * Session::get('reservation.nights');
 
-        $total += $b->roomPrice->price * Session::get('reservation.nights');
-      //  $roomprice+=$tax;
+            $total += $b->roomPrice->price * Session::get('reservation.nights');
+        //$roomprice+=$tax;
         //$total = $total + $tax;
-        $reserveRoom = new ReservedRoom;
-        $reserveRoom->booking_id = $new_booking->id;
-        $reserveRoom->room_id = $b->id;
-        $reserveRoom->room_type = $b->room_id;
-        $reserveRoom->price = $roomprice;
-        $reserveRoom->check_in = $i['checkin'];
-        $reserveRoom->check_out = $i['checkout'];
-        $reserveRoom->status= 1;
-        $reserveRoom->firstname = $customerinformation['firstname'];
-        $reserveRoom->lastname = $customerinformation['lastname'];
-        $reserveRoom->address = $customerinformation['address'];
-        $reserveRoom->contact_number = $customerinformation['contact_no'];
-        $reserveRoom->email_address = $customerinformation['email'];
-        $reserveRoom->save();
+            $reserveRoom = new ReservedRoom;
+            $reserveRoom->booking_id = $new_booking->id;
+            $reserveRoom->room_id = $b->id;
+            $reserveRoom->room_type = $b->room_id;
+            $reserveRoom->price = $roomprice;
+            $reserveRoom->check_in = $i['checkin'];
+            $reserveRoom->check_out = $i['checkout'];
+            $reserveRoom->status= 1;
+            $reserveRoom->firstname = $customerinformation['firstname'];
+            $reserveRoom->lastname = $customerinformation['lastname'];
+            $reserveRoom->address = $customerinformation['address'];
+            $reserveRoom->contact_number = $customerinformation['contact_no'];
+            $reserveRoom->email_address = $customerinformation['email'];
+            $reserveRoom->save();
+        }
     }
-}
 //$tax = $total * 0.12;
 //$total = $total + $tax;
-$new_booking->price = $total;
-$new_booking->paid = $total;
-$new_booking->status=1;
-$date = date('Ymd');
-$code = strtolower(Str::random(5).$date);
-$new_booking->code = $code;
-$new_booking->save();
-Session::forget('reservation');
-return Redirect::to('booking/step5')->with('code', $code);
+    $new_booking->price = Session::get('total_price');
+    $new_booking->paid = Session::get('total_price');
+    $new_booking->status=1;
+    $date = date('Ymd');
+    $code = strtolower(Str::random(5).$date);
+    $new_booking->code = $code;
+    $new_booking->save();
+    Session::forget('reservation');
+    Session::forget('total_price');
+    return Redirect::to('booking/step5')->with('code', $code);
 }
 return 'error in payment';
 }

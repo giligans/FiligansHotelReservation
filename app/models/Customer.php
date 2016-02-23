@@ -25,6 +25,15 @@ class Customer extends \Eloquent {
 
 	}
 
+	public function validateMembership($id)
+	{
+		$membership = Parent::where('membership_id',$id)->first();
+		if($membership)
+		{
+			return $membership;
+		}
+		return false;
+	}
 	public function discounts()
 	{
 		return $this->hasMany('CustomerDiscount', 'customer_id', 'membership_id');

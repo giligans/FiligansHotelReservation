@@ -7,13 +7,34 @@
 	.invoice-title h2, .invoice-title h3 {
 		display: inline-block;
 	}
-	.table > tbody > tr > .no-line {
+	input.fail
+	{
+		border:2px solid red;
+	}
+	input.success
+	{
+		border:2px solid green;
+	}
+
+	label.success
+	{
+		color:green;
+	}
+
+	label.fail
+	{
+		color:Red;
+	}
+	.table > tbody > tr > .no-line 
+	{
 		border-top: none;
 	}
-	.table > thead > tr > .no-line {
+	.table > thead > tr > .no-line 
+	{
 		border-bottom: none;
 	}
-	.table > tbody > tr > .thick-line {
+	.table > tbody > tr > .thick-line 
+	{
 		border-top: 2px solid;
 	}
 	.loading-table
@@ -151,6 +172,13 @@ bookingController
 													<td class='text-center'> Hotel Accomodation </td>
 													<td class='text-center' ng-bind='selected_invoiceInfo.price'>100</td>
 													<td class='text-center' ng-bind='selected_invoiceInfo.paid'>0</td>
+												</tr>
+												<tr>
+													<td class='text-center' ng-bind='selected_invoiceInfo.datecreated'></td>
+													<td class='text-center'> Change </td>
+													<td class='text-center'>00.00</td>
+
+													<td class='text-center' ng-bind='(selected_invoiceInfo.paid - selected_invoiceInfo.price) | number:2'>0</td>
 												</tr>
 											<!-- 	<tr>
 													<td class='text-center' ng-bind='selected_invoiceInfo.datecreated'></td>
@@ -341,7 +369,7 @@ bookingController
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='(updateBooking.status==5 && (updateBooking.cancelled_remarks==null || updateBooking.cancelled_remarks=="")) || (updateBooking.status==1 && paid==false) || ((price_deduction!=0 || price_addition!=0) && bookingremarks =="")'>Save changes</button>
+			<button type="button" class="btn btn-primary" ng-click='saveChanges()' ng-disabled='(updateBooking.status==5 && (updateBooking.cancelled_remarks==null || updateBooking.cancelled_remarks=="")) || ((price_deduction!=0 || price_addition!=0) && bookingremarks =="")'>Save changes</button>
 		</div>
 	</div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
@@ -580,10 +608,11 @@ bookingController
 					<div class="well" style='font-weight:bold;' ng-show='displayform2'>
 						Membership ID 
 						<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10" style='padding:2px'>
-							<input type='text' class='form-control'  placeholder="Please enter the customer's membership ID"> 
+							<input name='membership_id' type="text" class="form-control" id=""  placeholder="Enter your Membership ID" ng-model='membership_id'  ng-class='{"success": isMember && isMember!=null, "fail": isMember==false && isMember!=null }'>	
+						<label  ng-show='membershipMessage!=null' ng-bind='membershipMessage' ng-class='{"success": isMember && isMember!=null, "fail": isMember==false && isMember!=null }'></label>
 						</div>
 						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style='padding:2px'>
-							<button type="button" class="btn btn-primary">Validate</button>
+							<button type="button" class="btn btn-primary" ng-click='validateMembership()'>Validate</button>
 						</div>
 						<div class="clearfix">
 							
@@ -776,52 +805,51 @@ collection="items">
 		</tr>
 	</thead>
 	<tbody>
-										<!-- <tr ng-repeat='b in booking'>
-												<td></td>
-											</tr> -->
-											<tr ng-repeat='b in items'>
-												<td ng-bind='b.id'> </td>
-												<td><span class='upperfirst' ng-bind='b.firstname'></span> <span class='upperfirst' ng-bind='b.lastname'></span></td>
-												<td ng-bind='b.code'></td>
-												
-												<td ng-bind='b.checkindate'></td>
-												<td ng-bind='b.nights' style='width:50px;text-align:center'>
-												</td>
-												<td>
-													<span class="label label-success" ng-show='b.status==1'>Paid</span>
-													<span class="label label-warning" ng-show='b.status==0'>Pending</span>
-													<span class="label label-danger" ng-show='b.status==5'>Cancelled</span>
-													<span class="label label-primary" ng-show='b.status==2'>Occupied</span>
-													<span class="label label-info" ng-show='b.status==4'>Preparing</span>
-													<span class="label label-primary" ng-show='b.status==3'>Ended</span>
-												</td>
-												<td ng-bind='b.datecreated'> </td>
-												<td>
-													<button type="button" class="btn margin-xs btn-xs btn-warning" ng-click='updateModal(b)' style='margin:1px;'>		<span class="glyphicon glyphicon glyphicon-edit"></span></button>
-													<button type="button" class="btn margin-xs btn-xs btn-primary" ng-click='viewBooking(b)' style='margin:1px;'>		<span class="glyphicon glyphicon glyphicon-info-sign"></span></button>
-													<button type="button" class="btn margin-xs btn-xs btn-info" ng-click='viewInvoice(b)' style='margin:1px;'><span class="glyphicon glyphicon-glyphicon glyphicon-align-right" aria-hidden="true"></span> </button>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-									<bgf-pagination
-									page="page"
-									per-page="perPage"
-									client-limit="clientLimit"
-									url="url"
-									url-params = 'urlParams'
-									link-group-size="2"
-									collection="items">
-								</bgf-pagination>
-								@stop
-								@section('scripts')
-								<script type="text/javascript">
-									$('.checkin').datepicker({
-										format: 'yyyy-mm-dd',
-										
-									})
-									$('.searchDate').datepicker({
-										format: 'yyyy-mm-dd',
+		
+
+		<tr ng-repeat='b in items'>
+			<td ng-bind='b.id'> </td>
+			<td><span class='upperfirst' ng-bind='b.firstname'></span> <span class='upperfirst' ng-bind='b.lastname'></span></td>
+			<td ng-bind='b.code'></td>
+			
+			<td ng-bind='b.checkindate'></td>
+			<td ng-bind='b.nights' style='width:50px;text-align:center'>
+			</td>
+			<td>
+				<span class="label label-success" ng-show='b.status==1'>Paid</span>
+				<span class="label label-warning" ng-show='b.status==0'>Pending</span>
+				<span class="label label-danger" ng-show='b.status==5'>Cancelled</span>
+				<span class="label label-primary" ng-show='b.status==2'>Occupied</span>
+				<span class="label label-info" ng-show='b.status==4'>Preparing</span>
+				<span class="label label-primary" ng-show='b.status==3'>Ended</span>
+			</td>
+			<td ng-bind='b.datecreated'> </td>
+			<td>
+				<button type="button" class="btn margin-xs btn-xs btn-warning" ng-click='updateModal(b)' style='margin:1px;'>		<span class="glyphicon glyphicon glyphicon-edit"></span></button>
+				<button type="button" class="btn margin-xs btn-xs btn-primary" ng-click='viewBooking(b)' style='margin:1px;'>		<span class="glyphicon glyphicon glyphicon-info-sign"></span></button>
+				<button type="button" class="btn margin-xs btn-xs btn-info" ng-click='viewInvoice(b)' style='margin:1px;'><span class="glyphicon glyphicon-glyphicon glyphicon-align-right" aria-hidden="true"></span> </button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<bgf-pagination
+page="page"
+per-page="perPage"
+client-limit="clientLimit"
+url="url"
+url-params = 'urlParams'
+link-group-size="2"
+collection="items">
+</bgf-pagination>
+@stop
+@section('scripts')
+<script type="text/javascript">
+	$('.checkin').datepicker({
+		format: 'yyyy-mm-dd',
+		
+	})
+	$('.searchDate').datepicker({
+		format: 'yyyy-mm-dd',
 																			//startDate: '0d'
 																		})
 																	</script>

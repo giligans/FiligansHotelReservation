@@ -11,6 +11,13 @@ class ReservedRoom extends \Eloquent {
 		return $newDate;
 	}
 
+	
+
+	public function booking()
+	{
+		return $this->belongsTo('Booking','booking_id', 'id');
+	}
+
 	public function getCheckoutdateAttribute()
 	{
 		$newDate = date("F j, Y h:i:s a", strtotime($this->check_out));

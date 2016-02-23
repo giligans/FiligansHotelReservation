@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Title Pages</title>
+	<title>@yield('title', 'Filigans | Make Reservations Online')</title>
 	<!-- Bootstrap CSS -->
 	<!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet"> -->
 	<!-- Latest compiled and minified CSS -->
@@ -18,6 +18,10 @@
 	{{ HTML::style('asset/styles/datepicker.css') }}
 	@yield('styles')
 	<style type="text/css">
+		[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+			display: none !important;
+		}
+		
 		.container-content{
 			max-width:960px;
 			margin:0 auto;
@@ -32,7 +36,6 @@
 			bottom: 0;
 			color:white;
 			width: 100%;
-			
 			height: 60px;
 			background :url({{ URL::to("images/background/texture4.png") }});
 		}
@@ -41,6 +44,16 @@
 </head>
 @yield('initializeData')
 <body style='background: url({{ URL::to("images/background/texture3.jpg") }})' ng-controller='@yield("controller")'>
+	<div class='loadingIndicator' style='width:100%;height:100%;position:absolute;top:0;left:0;'>
+		<div style='width:100%;height:100%;position:fixed;top:0;left:0;background-color:black;z-index:10000;opacity:0.5'>
+		</div>
+		<div style='padding-top:100px;position:relative;z-index:20000;'>
+			<center>
+				<h3 class='text-center' style='color:white;'> Loading...</h3>
+				<img src='{{ URL::to("images/loader2.gif") }}'>
+			</center>
+		</div>
+	</div>
 	<div class='container-fluid'>
 		<div class="row" style='min-height:50px;'>
 			<div class="row" style='background: url({{ URL::to("images/background/texture4.jpg") }});min-height:30px'>
@@ -102,7 +115,7 @@
 </div>
 </div>
 @if($cpage =='home')
-<div class="container-content" style='margin-top:10px;background-color:White'>
+<div class="container-fluid container-content" style='margin-top:10px;background-color:White'>
 	<div class="row" style='padding:10px;padding-top:5px'>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
 			<div class="callbacks_container">
@@ -186,5 +199,14 @@
 						});
 					</script>
 					@yield('scripts')
+					<script type="text/javascript">
+						$(document).ready(function () {
+							setTimeout(function()
+							{
+								$('.loadingIndicator').fadeOut();
+							},500)
+							
+						});
+					</script>
 				</body>
 				</html>

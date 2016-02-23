@@ -139,6 +139,7 @@ class BookingController extends \BaseController {
 
 	public function bookingList(){
 
+
 		$arr = [];
 		$arr = getallheaders();
 		$b = null;
@@ -225,6 +226,7 @@ class BookingController extends \BaseController {
 					{
 						$status->whereIn('status', $status_arr);
 					})->get()->count();
+
 					$b = Booking::with('reservedRoom_grp.room.roomDetails','remarksHistory')
 					->where(function($query1) use ($query){
 						$query1->where('id', 'LIKE', "%$query%")
@@ -233,7 +235,7 @@ class BookingController extends \BaseController {
 						->orWhere('lastname', 'LIKE', "%$query%")
 						->orWhere('code', 'LIKE', "%$query%");
 					})
-					->where(function($date) use ($startdate, $enddate)
+					->orWhere(function($date) use ($startdate, $enddate)
 					{
 						$date->whereBetween('check_in', array($startdate, $enddate))
 						->orWhereBetween('check_out', array($startdate, $enddate))
@@ -246,7 +248,9 @@ class BookingController extends \BaseController {
 					})
 					->orderBy("$orderBy" , 'DESC')
 					->skip($skip)->take($items)->get();
-				}else
+				
+				}
+				else
 				{
 					$orderBy = $_GET['orderBy'];
 					$count = Booking::all()->count();
@@ -258,6 +262,12 @@ class BookingController extends \BaseController {
 					->orWhere('code', 'LIKE', "%$query%")
 					->skip($skip)->take($items)->get();
 				}
+				$response = Response::make($b, 200);
+			$response_array['Content-Ranges'] = 'itemss '.$range.'/'.$count;
+			$response->header('Content-Range',$response_array['Content-Ranges'])
+			->header('Accept-Ranges', 'items')->header('Range-Unit', 'items')->header('Total-Items', $count)
+			->header('Flash-Message','Now showing pages '.$arr[0].'-'.$arr[1].' out of '.$count);
+			return $response;
 			}else
 			{
 				$count = Booking::all()->count();
@@ -346,6 +356,7 @@ class BookingController extends \BaseController {
 			return 'cancelled';
 		}
 	}
+	
 	public function update($id)
 	{
 		$today = date("Y-m-d H:i:s");
@@ -389,6 +400,7 @@ class BookingController extends \BaseController {
 					$newBookingRemarks->additional =$addition;
 					$newBookingRemarks->deduction =$deduction;
 					$newBookingRemarks->remarks = $i['bookingremarks'];
+					$newBookingRemarks->booking_id = $id;
 					$newBookingRemarks->save();
 				}
 
@@ -398,6 +410,7 @@ class BookingController extends \BaseController {
 					$rr->status = $i['status'];
 					$rr->save();
 				}
+
 				$a = new Activity;
 				$a->actor = Auth::id();
 				$a->location=3;

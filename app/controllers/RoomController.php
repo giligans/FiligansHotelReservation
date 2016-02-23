@@ -20,16 +20,19 @@ class RoomController extends \BaseController {
 				->orWhereRaw('"'.$today.'" between check_in and check_out');
 			})->where(function($query3)
 			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
 			});
 			
-		}, 'roomImages.photo'))->get();
+		}, 'roomImages.photo', 'roomQty' => function($query4)
+		{
+			$query4->where('status', 1);
+		}))->get();
 		foreach($room as $r)
 		{
 			$available = 0;
 			foreach($r->roomQty as $roomQty )
 			{
-				if(count($roomQty->roomReserved)==0 || $roomQty->status==1)
+				if(count($roomQty->roomReserved)==0 && $roomQty->status==1)
 				{
 					$available++;
 				}
@@ -71,14 +74,15 @@ class RoomController extends \BaseController {
 				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
 			})->where(function($query3)
 			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
 			});
-		}))->get();
+		}))->where('status', 1)->get();
 
+		
 		foreach($room as $r)
 		{
 		//$available_rooms = $r;
-			if($r->roomReserved->count()==0){
+			if($r->roomReserved->count()==0 || $r->roomReserved == '[]'){
 				$available_rooms++;
 			}
 		}
@@ -110,7 +114,7 @@ class RoomController extends \BaseController {
 				->orWhereRaw('"'.$today.'" between check_in and check_out');
 			})->where(function($query3)
 			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
 			});
 		}, 'roomImages.photo'))->get();
 		foreach($room as $r)
@@ -118,7 +122,7 @@ class RoomController extends \BaseController {
 			$available = 0;
 			foreach($r->roomQty as $roomQty)
 			{
-				if(count($roomQty->roomReserved)==0 )
+				if(count($roomQty->roomReserved)==0 && $roomQty->status ==1)
 				{
 					$available++;
 				}
@@ -195,9 +199,9 @@ class RoomController extends \BaseController {
 			->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
 		})->where(function($query3)
 		{
-			$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			$query3->where('status', '!=', 5)->where('status', '!=', 3);
 		});
-	}))->where('room_id', $room_id)->get();
+	}))->where('status',1)->where('room_id', $room_id)->get();
 
 	foreach($room_qty as $available)
 	{		
@@ -372,7 +376,7 @@ class RoomController extends \BaseController {
 				->orWhereRaw('"'.$tomorrow.'" between check_in and check_out');
 			})->where(function($query3)
 			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
 			});
 			
 		}, 'roomImages.photo'))->where('id', $id)->first();
@@ -501,7 +505,7 @@ class RoomController extends \BaseController {
 					->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
 				})->where(function($query3)
 				{
-					$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+					$query3->where('status', '!=', 5)->where('status', '!=', 3);
 				});
 			}))->get();
 			return $room1;

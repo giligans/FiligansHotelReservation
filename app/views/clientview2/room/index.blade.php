@@ -79,11 +79,11 @@ roomController
                 <!-- Begin Listing: 609 W GRAVERS LN-->
                 <div class="brdr bgc-fff pad-10 box-shad btm-mrg-20 property-listing">
                     <div class="media">
-                        <a class="pull-left" href="#" target="_parent">
+                        <a class="pull-left" href="{{ URL::to('room/'.$r->id) }}" target="_parent">
                             <img alt="image" class="img-responsive  " src="{{ URL::to('image/medium/'.$r->roomImages[0]->photo->filename) }} "></a>
                             <div class="clearfix visible-sm"></div>
                             <div class="media-body fnt-smaller">
-                                <a href="#" target="_parent"></a>
+                                <a href="{{ URL::to('room/'.$r->id) }}" target="_parent"></a>
 
                                 <h4 class="media-heading">
                                     <p>

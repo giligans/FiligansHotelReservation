@@ -1,81 +1,96 @@
-angular.module('liveMonitoringApp', [], function($interpolateProvider)
-{
-	$interpolateProvider.startSymbol('[[');
-	$interpolateProvider.endSymbol(']]');
-}).factory('liveMonitoringFactory', function($http){
-	return {
-		test : function(){
-			alert('test');
-		},
-		loadRooms : function()
-		{
-			return $http.get('/adminsite/monitoring/ajax');
-		},
-		loadStatistics : function()
-		{
-			return $http.get('/adminsite/todaystatistics/ajax');
-		}
-	};
-}).controller('indexCtrl', ['$scope', 'liveMonitoringFactory','$timeout','$interval', function($scope, liveMonitoringFactory, $timeout, $interval)
-{
-	$scope.rooms = [];
-	$scope.statistics = [];
-	function loadRooms()
+	angular.module('liveMonitoringApp', [], function($interpolateProvider)
 	{
-		liveMonitoringFactory.loadRooms().success(function(data)
-		{
-			$scope.rooms = angular.copy(data);
-			$.map($scope.rooms, function(rooms, i)
+		$interpolateProvider.startSymbol('[[');
+		$interpolateProvider.endSymbol(']]');
+	}).factory('liveMonitoringFactory', function($http){
+		return {
+			test : function(){
+				alert('test');
+			},
+			loadRooms : function()
 			{
-				var available =0, unavailable=0;
-				$.map(rooms.room_qty, function(val, o)
+				return $http.get('/adminsite/monitoring/ajax');
+			},
+			loadStatistics : function()
+			{
+				return $http.get('/adminsite/todaystatistics/ajax');
+			}
+		};
+	}).controller('indexCtrl', ['$scope', 'liveMonitoringFactory','$timeout','$interval', function($scope, liveMonitoringFactory, $timeout, $interval)
+	{
+		$scope.rooms = [];
+		$scope.statistics = [];
+		function loadRooms()
+		{
+			liveMonitoringFactory.loadRooms().success(function(data)
+			{
+				$scope.rooms = angular.copy(data);
+				$.map($scope.rooms, function(rooms, i)
 				{
-
-					var statusStr = '';
-					if(val.room_reserved.length > 0 && val.status==1)
+					var available =0, unavailable=0;
+					$.map(rooms.room_qty, function(val, o)
 					{
-						var intStatus = parseInt(val.room_reserved[0].status);
-						switch(intStatus)
+
+						var statusStr = '';
+						console.log('room reserved length', val.room_reserved.length);
+						console.log('room status', val.status)
+						if(val.room_reserved.length > 0 && val.status==0)
 						{
-							case 0: statusStr='Pending';
-							break;
-							case 1: statusStr='Unavailable';
-							break;
-							case 2: statusStr='Occupied';
-							break;
-							case 3: statusStr='Ended';
-							break;
-							case 4: statusStr='Preparing';
-							break;
-							case 5: statusStr='Cancelled'
-							break;
-							case 6: statusStr='Overdue!'
-							break;
-							default : statusStr='Unavailable';
-							break;
+							
+							var intStatus = parseInt(val.room_reserved[0].status);
+							/*if(val.status==0)
+							{
+								alert('test')
+								statusStr='Unavailable';
+							}else
+							{
+								alert('test')
+							}*/
+							switch(intStatus)
+							{
+								case 0: statusStr='Pending';
+								break;
+								case 1: statusStr='Unavailable';
+								break;
+								case 2: statusStr='Occupied';
+								break;
+								case 3: statusStr='Ended';
+								break;
+								case 4: statusStr='Preparing';
+								break;
+								case 5: statusStr='Cancelled'
+								break;
+								case 6: statusStr='Overdue!'
+								break;
+								default : statusStr='Unavailable';
+								break;
+							}
+
+							$scope.rooms[i].room_qty[o].room_reserved[0].statusStr = statusStr;
+							
+							if((val.room_reserved[0].status !=5 || val.room_reserved[0].status !=3) && val.status==0)
+							{
+								unavailable++;
+
+							}else
+							{
+								available++;
+							}
+
 						}
-
-
-						$scope.rooms[i].room_qty[o].room_reserved[0].statusStr = statusStr;
-						if(val.room_reserved[0].status !=5 || val.room_reserved[0].status !=3)
+						else
 						{
-							unavailable++;
 
-						}else
-						{
+							//alert('test')
 							available++;
 						}
-					}
-					else
-					{
-						available++;
-					}
-				})
-				$scope.rooms[i].available = available;
-				$scope.rooms[i].unavailable = unavailable;
+						
+					})
+	$scope.rooms[i].available = available;
+	$scope.rooms[i].unavailable = unavailable;
 
-			})
-console.log($scope.rooms);
+})
+	console.log($scope.rooms);
 })
 }
 function loadStatistics()

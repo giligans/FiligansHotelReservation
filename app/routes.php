@@ -11,9 +11,21 @@
 |
 */
 
+Route::get('testing/booking', function()
+{
+	$discount = Discount::all();
+	/*$discount = new Discount;
+	return somethingOrOther();
+	return $discount->calculateDiscount(1000, 50, 1);*/
+	return $discount;
+});
+
 Route::get('test', function()
 {
-	$c = CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id')->get();
+	$c = Booking::all();
+
+	//$c = CustomerDiscount::join('customers', 'customers.membership_id', '=','discounts_customers.customer_id')->get();
+	return 'test';
 	return $c;
 });
 
@@ -35,6 +47,8 @@ Route::get('gallery', function(){
 	return View::make('clientview2.gallery', compact('cpage'));
 });
 
+Route::get('checkmembership/{membership_id}', 'CustomersController@checkMembership');
+Route::post('checkcode/{code}', 'DiscountsController@checkCode');
 Route::get('services', function(){
 	$cpage = 'services';
 	return View::make('clientview2.services', compact('cpage'));
@@ -81,32 +95,39 @@ Route::get('booking/step2', function(){
 		/*try
 		{*/
 			$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
-		$i['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
+			$i['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
+
 		/*}catch(exception $e)
 		{
 			$i['checkin'] = Session::get('reservation.checkin');
 		$i['checkout'] = Session::get('reservation.checkout');
-		}*/
+	}*/
+
 			//return $i;
-		$available_rooms = 0;
-		$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
-			$query->where(function($query2) use($i){
-				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
-				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
-				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
-				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
-			})->where(function($query3)
-			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
-			});
-		}))->get();
+	$available_rooms = 0;
+	$room = Room::with(array('roomQty.roomReserved' => function($query) use ($i){
+		$query->where(function($query2) use($i){
+			$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+			->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+			->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+			->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+		})->where(function($query3)
+		{
+			$query3->where('status', '!=', 5)->where('status', '!=', 3);
+		});
+	}, 'roomQty' => function($query4)
+	{
+		$query4->where('status', 1);
+	}))->get();
+	
+	
 			//eturn $room1;
-	}else{
+}else{
 
-	}
+}
 
 
-	return View::make('clientview2.booking.step2', compact('cpage','room'));
+return View::make('clientview2.booking.step2', compact('cpage','room'));
 });
 
 Route::post('booking/step2/direct', function(){
@@ -121,14 +142,49 @@ Route::post('booking/step2/direct', function(){
 		array_push($rooms, $r);
 	}
 	Session::put('reservation', $i);
+
+	foreach(Session::get('reservation')['reservation_room'] as $rooms)
+	{
+		$count++;
+		$room_id = $rooms['room_details']['id'];
+		$available_rooms = [];
+		$room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
+			$query->where(function($query2) use ($i, $room_id){
+				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
+			});
+		}))->where('room_id', $room_id)->where('status',1)->get();
+
+		foreach($room_qty as $available)
+		{
+			if($available->roomReserved== '[]' || count($available->roomReserved) == 0)
+			{
+				array_push($available_rooms, $available);
+			}
+		}
+		if(count($available_rooms) < $rooms['quantity'])
+		{
+			return Redirect::to('booking/step2')->with('error', 'Some rooms you booked is not available');
+		}
+	} 
+
 	return Redirect::to('booking/step3');
 });
 
+
 Route::post('booking/step2', function(){
 
+	
 	$i = Input::all();
 	$x = [];
 	$room_reservation['reservation_room'] = [];
+	$i['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
+	$i['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
 	$room_reservation['checkin'] = Session::get('reservation.checkin'). ' 12:00:00';
 	$room_reservation['checkout'] = Session::get('reservation.checkout'). ' 11:59:00';
 	$room_reservation['display_checkout'] = Session::get('reservation.display_checkout');
@@ -148,7 +204,38 @@ Route::post('booking/step2', function(){
 		array_push($rooms, $r);
 	}
 	Session::put('reservation', $room_reservation);
-		//return Session::get('reservation');
+
+	foreach(Session::get('reservation')['reservation_room'] as $rooms)
+	{
+		$count++;
+		$room_id = $rooms['room_details']['id'];
+		$available_rooms = [];
+		$room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
+			$query->where(function($query2) use ($i, $room_id){
+				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
+			});
+		}))->where('room_id', $room_id)->where('status',1)->get();
+
+		foreach($room_qty as $available)
+		{
+			if($available->roomReserved== '[]' || count($available->roomReserved) == 0)
+			{
+				array_push($available_rooms, $available);
+			}
+		}
+		if(count($available_rooms) < $rooms['quantity'])
+		{
+			return Redirect::to('booking/step2')->with('error', 'Some rooms you booked is not available');
+		}
+	} 
+
+	//return Session::get('reservation');
 	return Redirect::to('booking/step3');
 });
 
@@ -159,7 +246,49 @@ Route::get('booking/step3', function(){
 
 Route::post('booking/step3', function(){
 
+/*
+	foreach(Session::get('reservation')['reservation_room'] as $rooms)
+	{
+	
+		$room_id = $rooms['room_details']['id'];
+		$available_rooms = [];
+		$room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
+			$query->where(function($query2) use ($i, $room_id){
+				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
+		}))->where('room_id', $room_id)->where('status',1)->get();
+
+		foreach($room_qty as $available)
+		{
+			if($available->roomReserved== '[]' || count($available->roomReserved) == 0)
+			{
+				array_push($available_rooms, $available);
+			}
+		}
+		if(count($available_rooms) < $rooms['quantity'])
+		{
+			return Redirect::to('booking/step2')->with('error', 'Some rooms you booked is not available');
+		}
+	} 
+*/
 	$i = Input::all();
+	if(isset($i['membership_id']))
+	{
+		$membership = Customer::where('membership_id',$i['membership_id'])->first();
+		if($membership)
+		{
+			Session::forget('reservation.customerdiscount');
+			//unset(Session::get('reservation.customerdiscount'));
+			Session::put('reservation.customerdiscount',$membership->current_discount);
+		}
+	}
+	Session::forget('reservation.customerinformation');
 	Session::put('reservation.customerinformation', $i);
 		//return Session::get('reservation.customerinformation')['firstname'];
 	return Redirect::to('booking/step4');
@@ -167,9 +296,55 @@ Route::post('booking/step3', function(){
 });
 
 Route::get('booking/step4', function(){
-	//return Session::get('reservation')['checkin'];
+
+	/*foreach(Session::get('reservation')['reservation_room'] as $rooms)
+	{
+		$count++;
+		$room_id = $rooms['room_details']['id'];
+		$available_rooms = [];
+		$room_qty = RoomQty::with(array('roomPrice','roomReserved'=>function($query) use($i, $room_id){
+			$query->where(function($query2) use ($i, $room_id){
+				$query2->whereBetween('check_in', array($i['checkin'], $i['checkout']))
+				->orWhereBetween('check_out', array($i['checkin'], $i['checkout']))
+				->orWhereRaw('"'.$i["checkin"].'" between check_in and check_out')
+				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			});
+		}))->where('room_id', $room_id)->where('status',1)->get();
+
+		foreach($room_qty as $available)
+		{
+			if($available->roomReserved== '[]' || count($available->roomReserved) == 0)
+			{
+				array_push($available_rooms, $available);
+			}
+		}
+		if(count($available_rooms) < $rooms['quantity'])
+		{
+			return Redirect::to('booking/step2')->with('error', 'Some rooms you booked is not available');
+		}
+	} */
+
+
 	try
 	{
+
+		$data =
+		$total_price = 0;
+		foreach(Session::get('reservation')['reservation_room'] as $reservation)
+		{
+
+			$total_price+=$reservation['room_details']['price'];
+		}
+
+		if(Session::has('reservation.customerdiscount'))
+		{
+			$discount = new Discount;
+			Session::put('reservation.customerdiscountprice', $discount->calculateDiscount(1000, Session::get('reservation')['customerdiscount']['effect'], Session::get('reservation')['customerdiscount']['effect_type']));
+		}
+		
 		$ci = new Carbon(Session::get('reservation')['checkin']);
 		$co = new Carbon(Session::get('reservation')['checkout']);
 		$diff = $co->addMinutes(1)->diff($ci)->days;
@@ -181,6 +356,7 @@ Route::get('booking/step4', function(){
 	}
 	catch(exception $e)
 	{
+		return $e;
 		Session::forget('reservation');
 		return Redirect::to('booking')->with('error', 'Something went wrong. Please try again.');
 	}
@@ -233,7 +409,7 @@ Route::post('booking/step5', function()
 				->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
 			})->where(function($query3)
 			{
-				$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
 			});
 
 		}))->where('room_id', $room_id)->get();
@@ -282,18 +458,23 @@ Route::get('booking/step5', function(){
 	$cpage = 'booking.step5';
 	return View::make('clientview2.booking.step5', compact('cpage'));
 });
+
 Route::get('payment_done/{payum_token}', array('as' => 'payment_done', 'uses' => 'PaymentController@done'));
+
 Route::get('room', function(){
 	$cpage = 'room';
 	$room = Room::with('roomQty','roomImages.photo')->get();
 	//return $room;
 	return View::make('clientview2.room.index', compact('room','cpage')); //this will output the second layout
 });
+
 Route::get('testpaypal', 'PaypalController@prepareExpressCheckout');
+
 Route::get('room1', function(){
 	$cpage = 'room';
 	return View::make('clientview.room', compact('cpage'));
 });
+
 Route::post('reservation/proceed', function(){
 	$i = Input::all();
 	Session::put('checkin', $i['checkin']);
@@ -302,7 +483,6 @@ Route::post('reservation/proceed', function(){
 	return $i;
 });
 
-
 Route::get('testquery', function(){
 	$r = ReservedRoom::whereBetween('check_in', array('2014-12-07 00:00:00', '2014-12-08 00:00:00'))
 	->orWhereBetween('check_out', array('2014-12-10 00:00:00', '2014-12-08 00:00:00'))
@@ -310,15 +490,28 @@ Route::get('testquery', function(){
 	->orWhereRaw('"2014-12-10 00:00:00" between check_in and check_out')->get();
 	return $r;
 });
+
 Route::get('room/{id}', function($id){
 	$room = Room::where('id',$id)->with('roomQty','roomImages.photo')->first();
 	$cpage = 'room';
+
 	if(!empty($room)){
 		return View::make('clientview2.room.show', compact('room', 'cpage'));
 	}
+
+	return Redirect::to('room');
+});
+
+Route::get('test', function()
+{
+	$c = Customer::all();
+	return Session::get('reservation');
 });
 Route::post('room/{id}/availability', function($id){
 	$i = Input::all();
+	$i['checkin'] = date('Y-m-d 12:00:00', strtotime($i['checkin']));
+	$i['checkout']=date('Y-m-d 11:59:59', strtotime('+'.$i['nights'].' day', strtotime($i['checkin'])));
+
 	$available_rooms = 0;
 	$room1= [];
 	//$roomDetails = Room::where('id')->first();
@@ -330,17 +523,17 @@ Route::post('room/{id}/availability', function($id){
 			->orWhereRaw('"'.$i["checkout"].'" between check_in and check_out');
 		})->where(function($query3)
 		{
-			$query3->where('status', '!=', 5)->orWhere('status', '!=', 3);
+			$query3->where('status', '!=', 5)->where('status', '!=', 3);
 		});
-	}))->get();
+	}))->where('status',1)->get();
 	
 	foreach($room as $r)
 	{
-//$available_rooms = $r;
 		if($r->roomReserved->count()==0){
 			$available_rooms++;
 		}
 	}
+
 	$room = $room->toArray();
 	$room1['quantity'] = $room;
 	$room1['available_rooms']=$available_rooms;
@@ -348,20 +541,17 @@ Route::post('room/{id}/availability', function($id){
 	$reservation['quantity'] = $i['quantity'];
 	$reservation['checkin'] = $i['checkin'];
 	$reservation['checkout'] = $i['checkout'];
-	$reservation['display_checkout'] = $i['display_checkout'];
+	$reservation['display_checkout'] =$i['checkout'];
 	$reservation['room_id'] = $id;
 	if($available_rooms >= $i['quantity']){
 		$reservation['status'] = 1; // means available
 		return $reservation;
 	}else{
 		$reservation['status'] = 0; // means unavailable :(
-		//return 'quantity: "'.$i['quantity'].'" available rooms:"'. $available_rooms.'"';
 			return $reservation;
 		}
-	//$room->roomsavailable = $available_rooms;
-	//$room = $room->toJson();
-	//return $room1;
 	});
+
 Route::post('room/availability', function($id){
 	$i = Input::all();
 	$available_rooms = 0;
@@ -379,7 +569,7 @@ Route::post('room/availability', function($id){
 			$available_rooms++;
 		}
 	}
-	return $room;
+	//return $room;
 	return $available_rooms;
 });
 
@@ -415,8 +605,6 @@ Route::get('testqueue', function()
 	Queue::push('DoSomething');
 	return 'Done';
 });
-
-
 
 Route::post('room/availability', 'RoomController@availability');
 /*Route::get('test2', function(){
@@ -466,7 +654,6 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 	{
 		return View::make('template.pagination');
 	});
-	
 
 	Route::get('monitoring', 'DashboardController@liveMonitoring');
 	Route::get('monitoring/ajax', 'DashboardController@ajaxLiveMonitoring');
@@ -546,9 +733,6 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 		return View::make('adminview.booking.index', compact('cpage', 'r'));
 	});
 
-
-
-
 	Route::get('getbookinglist', 'BookingController@bookingList');
 	Route::post('getbookinglist/search', 'BookingController@searchList');
 	Route::post('getbookinginfo/{id}', 'BookingController@searchBooking');
@@ -557,25 +741,48 @@ Route::group(array('prefix'=>'adminsite', 'before' => 'auth'), function(){
 	Route::post('currentbooking/save', function()
 	{
 		$i = Input::all();
-		$reservation = ReservedRoom::where('booking_id', $i['booking_id'])->get();
-		if(count($reservation) > 0) {
-			foreach($reservation as $r)
+		return $i;
+		$membershipDiscount = null;
+		if(isset($i['membership_id']))
+		{
+			$membership = Customer::where('membership_id',$i['membership_id'])->first();
+			if($membership)
 			{
-				$r->firstname = $i['firstname'];
-				$r->lastname = $i['lastname'];
-				$r->address = $i['address'];
-				$r->contact_number = $i['contact_no'];
-				$r->status = 1;
-				if($r->save())
-				{
-
-				}
+				$membershipDiscount = $membership->current_discount;
 			}
 		}
-		return $i;
+
+		$booking = Booking::where('id', $i['booking_id'])->first();
+		if($booking)
+		{
+
+			$booking->firstname = $i['firstname'];
+			$booking->lastname = $i['lastname'];
+			$booking->address = $i['address'];
+			$booking->contact_number = $i['contact_no'];
+			$booking->status = 1;
+			$booking->save();
+			$reservation = ReservedRoom::where('booking_id', $i['booking_id'])->get();
+			if(count($reservation) > 0) {
+				foreach($reservation as $r)
+				{
+					$r->firstname = $i['firstname'];
+					$r->lastname = $i['lastname'];
+					$r->address = $i['address'];
+					$r->contact_number = $i['contact_no'];
+					$r->status = 1;
+					if($r->save())
+					{
+
+					}
+				}
+			}
+			return $i;
+		}
+		
 	});
 	Route::get('reports', 'ReportsController@index');
-	
+
 	Route::get('room/create', function(){
 		$cpage = 'roommgt';
 		return View::make('adminview.room.create', compact('cpage'));

@@ -3,6 +3,37 @@
 class Discount extends \Eloquent {
 	protected $fillable = [];
 	protected $appends = array('type_str', 'created_at_str', 'updated_at_str', 'used_str', 'effect_str');
+	
+	private $errors;
+	public function validate($data)
+	{
+        // make a new validator object
+		$v = Validator::make($data, $this->rules);
+        // return the result
+		return $v->passes();
+	}
+
+	public function calculateDiscount($price=null, $effect=null, $type=null)
+	{
+
+
+		if($price!=null && $effect!=null && $type!=null)
+		{
+			if($type=='1')
+			{
+
+				return ($price * ($effect/100));
+			}else
+			{
+				
+				return  $effect;
+			}
+		}
+		return 0;
+		
+	}
+
+
 	public function getCodeAttribute($value)
 	{
 		if($value=='' || $value==null)
@@ -14,10 +45,21 @@ class Discount extends \Eloquent {
 		}
 	}
 
+	public function validateCode($code)
+	{
+		$discount = Parent::where('code', $code)->first();
+		if($discount)
+		{
+			return $discount;
+		}
+
+		return false;
+	}
 	public function subscribers()
 	{
 		return $this->hasMany('CustomerDiscount', 'discount_id', 'id');
 	}
+	/*public function */
 	public function getEffectAttribute($value)
 	{
 		if($this->effect_type == 1)
@@ -47,7 +89,8 @@ class Discount extends \Eloquent {
 
 	public function getUpdatedAtStrAttribute()
 	{
-		return $this->updated_at->diffForHumans();
+
+		return $this->updated_at;
 	}
 
 	/*public function set*/

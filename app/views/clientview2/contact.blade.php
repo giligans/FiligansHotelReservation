@@ -1,4 +1,7 @@
 @extends('layout.master2')
+@section('controller')
+homeController
+@stop
 @section('style')
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <style type="text/css">
@@ -63,11 +66,11 @@
 			<strong>Phone:</strong> (555)123-4567
 		</address>
 
-		 <a href="https://www.facebook.com/bootsnipp"><i id="social" class="fa fa-facebook-square fa-3x social-fb"></i></a>
-	            <a href="https://twitter.com/bootsnipp"><i id="social" class="fa fa-twitter-square fa-3x social-tw"></i></a>
-	            <a href="https://plus.google.com/+Bootsnipp-page"><i id="social" class="fa fa-google-plus-square fa-3x social-gp"></i></a>
-	            <a href="mailto:bootsnipp@gmail.com"><i id="social" class="fa fa-envelope-square fa-3x social-em"></i></a>
-	            
+		<a href="https://www.facebook.com/bootsnipp"><i id="social" class="fa fa-facebook-square fa-3x social-fb"></i></a>
+		<a href="https://twitter.com/bootsnipp"><i id="social" class="fa fa-twitter-square fa-3x social-tw"></i></a>
+		<a href="https://plus.google.com/+Bootsnipp-page"><i id="social" class="fa fa-google-plus-square fa-3x social-gp"></i></a>
+		<a href="mailto:bootsnipp@gmail.com"><i id="social" class="fa fa-envelope-square fa-3x social-em"></i></a>
+		
 	</div>
 
 	<div class="col-sm-8 contact-form">
@@ -89,3 +92,13 @@
 			</div>
 		</div>
 		@stop
+		@section('scripts')
+		<script type="text/javascript">
+			angular.module('giligansApp', [], function($interpolateProvider){
+				$interpolateProvider.startSymbol('[[');
+				$interpolateProvider.endSymbol(']]');
+			}).controller('homeController', ['$scope', function($scope){
+	//	alert('hey')
+}])
+</script>
+@stop

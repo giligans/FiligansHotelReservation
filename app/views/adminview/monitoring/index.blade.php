@@ -87,7 +87,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8" style='padding-lef;'>
 				<h2 style='text-shadow: 3px 1px 5px rgba(150, 150, 150, 1);color:maroon;'>Rooms
-				<input type='text' class='form-control' style='border:2px solid #d8d8d8' placeholder='Search Room' ng-model='searchRoom'>
+					<input type='text' class='form-control' style='border:2px solid #d8d8d8' placeholder='Search Room' ng-model='searchRoom'>
 				</h2>
 				<hr style='margin:5px;' >
 				<div ng-repeat='room in rooms | filter:searchRoom' style='width:230px;margin:3px;border:2px solid #355798;padding:5px;float:left;'>
@@ -95,7 +95,7 @@
 						<h4 ng-bind='room.name'>Room Type</h5>
 						</div>
 
-						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style='background-color:green;height:30px;color:white;padding:5px;text-align:center' ng-bind='room.available'>
+						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style='background-color:green;height:30px;color:white;padding:5px;text-align:center' ng-bind='room.available'>	
 
 						</div>
 						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style='background-color:red;height:30px;color:white;padding:5px;text-align:center' ng-bind='room.unavailable'>
@@ -104,7 +104,7 @@
 						<div class="clearfix">
 
 						</div>
-						<div ng-click='processBooking(r)' ng-class="{'available': r.room_reserved.length==0 || r.room_reserved.length > 0 && (r.room_reserved[0].status==5 || r.room_reserved[0].status==3), 'unavailable' : r.room_reserved.length > 0 && (r.room_reserved[0].status==1 || r.room_reserved[0].status==2 ), 'pending' : r.room_reserved.length > 0 && r.room_reserved[0].status==0, 'overdue' : r.room_reserved.length > 0 && r.room_reserved[0].status==6 }" ng-repeat='r in room.room_qty' style='cursor:pointer;font-weight:bold;margin-top:2px;'>
+						<div ng-click='processBooking(r)' ng-class="{'available': (r.room_reserved.length==0 || (r.room_reserved.length > 0 && (r.room_reserved[0].status==5 || r.room_reserved[0].status==3))) && r.status!=0, 'unavailable' : r.room_reserved.length > 0 && (r.room_reserved[0].status==1 || r.room_reserved[0].status==2 ) || r.status==0 , 'pending' : r.room_reserved.length > 0 && r.room_reserved[0].status==0, 'overdue' : r.room_reserved.length > 0 && r.room_reserved[0].status==6 }" ng-repeat='r in room.room_qty' style='cursor:pointer;font-weight:bold;margin-top:2px;'>
 							<div class="container-fluid">
 								<div  class='row' style='height:30px;display:block;'>
 									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 item" style='text-align:center;color:white;padding:3px;'>

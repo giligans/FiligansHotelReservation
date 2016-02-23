@@ -1,4 +1,7 @@
 @extends('layout.master2')
+@section('controller')
+homeController
+@stop
 @section('style')
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 @stop
@@ -32,4 +35,14 @@
 		Gilligan’s pride themselves in providing good food that is reasonably priced with an outstanding quality in mind to please every discerning patron. Matched with good service, the food alone is a must to try! It’s a family oriented restaurant that turns into a chill out place late at night. With 21 branches just ready to serve you. That’s a lot of places you can easily find them in…so come embark on a voyage aboard the Giligan’s restaurant.
 	</p>
 </div>
+@stop
+@section('scripts')
+<script type="text/javascript">
+	angular.module('giligansApp', [], function($interpolateProvider){
+		$interpolateProvider.startSymbol('[[');
+		$interpolateProvider.endSymbol(']]');
+	}).controller('homeController', ['$scope', function($scope){
+	//	alert('hey')
+}])
+</script>
 @stop

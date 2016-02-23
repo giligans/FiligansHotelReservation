@@ -9,6 +9,7 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
 				checkin : moment(data.checkin).format('YYYY[-]MM[-]DD'),
 				checkout: moment(data.checkout).format('YYYY[-]MM[-]DD'),
 				quantity : data.quantity,
+				nights : data.nights,
 				display_checkout : moment(data.display_checkout).format('YYYY[-]MM[-]DD')
 			}
 			return $http.post('/room/'+data.room_id+'/availability', info);
@@ -23,11 +24,13 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
 		room_id:0
 	}
 	$scope.nights = 1;
+	
 	$scope.checkAvailability = function(){
 		$scope.available = 1;
 		$scope.reservation = null;
 		if($scope.availability.room_id!=0){
 			$scope.loading = true;
+			$scope.availability.nights = $scope.nights;
 			roomFactory.checkAvailability($scope.availability).success(function(data){
 				if(data.status==1){
 					console.log(data);
@@ -61,6 +64,7 @@ angular.module('giligansApp', ['ui.bootstrap','angularMoment'], function($interp
 		}
 	});
 	$scope.$watch('nights', function(newVal, oldVal){
+
 		if(newVal<1){
 			$scope.nights=1;
 		}
