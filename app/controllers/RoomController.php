@@ -447,7 +447,23 @@ class RoomController extends \BaseController {
 	/* THIS WILL UPDATE A SPECIFIC ROOM*/
 	public function updateSpecific($id){
 		$i = Input::all();
-		$r = RoomQty::where('id', $id)->first();
+		$today = Date('Y-m-d H:i:s');
+		$tomorrow = new DateTime('tomorrow');
+		$tomorrow = $tomorrow->format('Y-m-d').' 11:59:00';
+		
+		$r = RoomQty::where('id', $id)->with(array('roomReserved' => function($query) use ($today, $tomorrow)
+			{
+				$query->where(function($query2) use($today, $tomorrow){
+				$query2->whereBetween('check_in', array($today, $tomorrow))
+				->orWhereBetween('check_out', array($today, $tomorrow))
+				->orWhereRaw('"'.$today.'" between check_in and check_out')
+				->orWhereRaw('"'.$tomorrow.'" between check_in and check_out');
+			})->where(function($query3)
+			{
+				$query3->where('status', '!=', 5)->where('status', '!=', 3);
+			});
+			}))->first();
+
 		if(!empty($r)){
 			$r->room_no = $i['room_no'];
 			$r->status = $i['status'];
