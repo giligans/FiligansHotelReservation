@@ -4,117 +4,75 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Title Page</title>
+	<title>title Page</title>
+	<style type="text/css">
 
+		body
+		{
+			background-image:url('/images/loginbg.png');
+		}
+		.container{
+			/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f9fcf7+0,f5f9f0+100;L+Green+3D */
+			background: rgb(249,252,247); /* Old browsers */
+			background: -moz-radial-gradient(center, ellipse cover, rgba(249,252,247,1) 0%, rgba(245,249,240,1) 100%); /* FF3.6-15 */
+			background: -webkit-radial-gradient(center, ellipse cover, rgba(249,252,247,1) 0%,rgba(245,249,240,1) 100%); /* Chrome10-25,Safari5.1-6 */
+			background: radial-gradient(ellipse at center, rgba(249,252,247,1) 0%,rgba(245,249,240,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9fcf7', endColorstr='#f5f9f0',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+			border:2px solid #d8d8d8;
+			width:450px !important;
+
+			margin:0 auto;
+			margin-top:100px;
+			padding:50px 10px 50px 10px;
+		}
+
+		.form-control
+		{
+			border:2px solid #B3B3B3 !important;
+		}
+		.form-item
+		{
+			margin-bottom:10px;
+		}
+
+	</style>
 	<!-- Bootstrap CSS -->
 	<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-	<style type="text/css">
-		body {
-			padding-top: 120px;
-			padding-bottom: 40px;
-			background-color: #eee;
+	
+</head>
+<body>
 
-		}
-		.btn 
-		{
-			outline:0;
-			border:none;
-			border-top:none;
-			border-bottom:none;
-			border-left:none;
-			border-right:none;
-			box-shadow:inset 2px -3px rgba(0,0,0,0.15);
-		}
-		.btn:focus
-		{
-			outline:0;
-			-webkit-outline:0;
-			-moz-outline:0;
-		}
-		.fullscreen_bg {
-			position: fixed;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			background-size: cover;
-			background-position: 50% 50%;
-			background-image: url('http://cleancanvas.herokuapp.com/img/backgrounds/color-splash.jpg');
-			background-repeat:repeat;
-		}
-		.form-signin {
-			max-width: 280px;
-			padding: 15px;
-			margin: 0 auto;
-			margin-top:50px;
-		}
-		.form-signin .form-signin-heading, .form-signin {
-			margin-bottom: 10px;
-		}
-		.form-signin .form-control {
-			position: relative;
-			font-size: 16px;
-			height: auto;
-			padding: 10px;
-			-webkit-box-sizing: border-box;
-			-moz-box-sizing: border-box;
-			box-sizing: border-box;
-		}
-		.form-signin .form-control:focus {
-			z-index: 2;
-		}
-		.form-signin input[type="text"] {
-			margin-bottom: -1px;
-			border-bottom-left-radius: 0;
-			border-bottom-right-radius: 0;
-			border-top-style: solid;
-			border-right-style: solid;
-			border-bottom-style: none;
-			border-left-style: solid;
-			border-color: #000;
-		}
-		.form-signin input[type="password"] {
-			margin-bottom: 10px;
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-			border-top-style: none;
-			border-right-style: solid;
-			border-bottom-style: solid;
-			border-left-style: solid;
-			border-color: rgb(0,0,0);
-			border-top:1px solid rgba(0,0,0,0.08);
-		}
-		.form-signin-heading {
-			color: #fff;
-			text-align: center;
-			text-shadow: 0 2px 2px rgba(0,0,0,0.5);
-		}</style>
+	<div class="container">
+	<center>
+	<span class="glyphicon glyphicon-glyphicon glyphicon-briefcase" aria-hidden="true" style='font-size:50px;color:rgb(156, 189, 156)'></span>
+		<h1 Style='margin:0 0 20px 0;color:rgb(113, 187, 113)'>get started...</h1>
+		</center>
 
-		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-		<!--[if lt IE 9]>
-			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-			<![endif]-->
-		</head>
-		<body>
-			<div id="fullscreen_bg" class="fullscreen_bg"/>
-
-			<div class="container">
-
-				<form class="form-signin" action='{{ URL::to("login") }}' method='POST'>
-					<h1 class="form-signin-heading text-muted">Sign In</h1>
-					<input type="text" class="form-control" name='username' placeholder="Enter username" required="" autofocus="">
-					<input type="password" class="form-control" name='password' placeholder="Enter password" required="">
-					<button class="btn btn-lg btn-primary btn-block" type="submit">
-						Sign In
-					</button>
-				</form>
-
+		@if(Session::has('error'))
+			<div class="alert alert-danger" style='margin:10px'>
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				<strong>Error!</strong> {{ Session::get('error') }}
 			</div>
-			<!-- jQuery -->
-			<script src="//code.jquery.com/jquery.min.js"></script>
-			<!-- Bootstrap JavaScript -->
-			<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-		</body>
-		</html>
+			@endif
+		<form class="form-signin" action='{{ URL::to("login") }}' method='POST'>	
+			<div class='form-item'>
+				<label>Enter your username</label>
+				<input type="text" class="form-control" name='username' placeholder="Enter username" required="" autofocus="">
+			</div>
+			<div class='form-item'>
+				<label>Enter your password</label>
+				<input type="password" class="form-control" name='password' placeholder="Enter password" required="">
+			</div>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">
+				<span class="glyphicon glyphicon-glyphicon glyphicon-log-in" aria-hidden="true"></span> Sign In
+			</button>
+			
+		</form>
+
+	</div>
+	<!-- jQuery -->
+	<script src="//code.jquery.com/jquery.min.js"></script>
+	<!-- Bootstrap JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>
