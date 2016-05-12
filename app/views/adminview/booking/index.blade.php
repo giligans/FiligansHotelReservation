@@ -582,7 +582,7 @@ bookingController
 								nights
 							</td>
 							<td>
-								<input type='text' class='form-control' ng-model='nights' valid-number>
+								<input type='text' class='form-control checkin' ng-model='availability.checkout'>
 							</td>
 						</tr>
 						<tr>
