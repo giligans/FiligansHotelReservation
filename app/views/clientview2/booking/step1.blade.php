@@ -83,17 +83,22 @@ bookingController
 	</div>
 
 		<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" style='margin-top:20px;border-left:1px solid #d8d8d8'>
+		@if(Session::has('error'))
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				<strong>Ooop!</strong> {{ Session::get('error') }}
+			</div>
+		@endif
 		<div class="form-group">
-		<form action='{{ URL::to("booking/step1") }}' method='POST'>
-		<label>Check in date</label>
-			<input type='text' class='form-control checkin' placeholder='Your Check-in Date' ng-model='availability.checkin' ng-value='availability.checkin' name='checkin' required>
+			<form action='{{ URL::to("booking/step1") }}' method='POST'>
+				<label>Check in date</label>
+			<input type='text' class='form-control checkin' placeholder='Your Check-in Date'  value="{{ date('Y-m-d') }}" name='checkin' required>
 			</div>
 			<div class="form-group">
-			<label>No. of nights</label>
-			<input type='text' class='form-control' ng-model='nights' placeholder='Number of nights' maxlength='2' name='nights' required valid-number>
+			<label>Check out date</label>
+			<input type='text' class='form-control checkout' placeholder='Your Check-in Date'  value="{{ date('Y-m-d', strtotime('+1 day'))}}" name='checkout' required>
 			</div>
-			<input type='hidden' name='checkout' ng-value='availability.checkout'>
-			<input type='hidden' name='display_checkout' ng-value='availability.display_checkout'>
+	
 			<div class="form-group">
 				<button type="submit" class="btn btn-large btn-block btn-danger">Check availability</button>
 			</div>
@@ -112,6 +117,11 @@ bookingController
 
 <script type="text/javascript">
 	$('.checkin').datepicker({
+		format: 'yyyy-mm-dd',
+		startDate: '0d'
+	})
+
+	$('.checkout').datepicker({
 		format: 'yyyy-mm-dd',
 		startDate: '0d'
 	})

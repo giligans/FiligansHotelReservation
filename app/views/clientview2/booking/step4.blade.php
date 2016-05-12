@@ -243,14 +243,10 @@ bookingController
 		$scope.discountedMessage = null;
 		$scope.terms = false;
 		$scope.discountedMessage = null;
-		//var total_amount = parseInt($('#subtotal').val());
-
 		$scope.$watch('discountCode', function(newVal,oldVal)
 		{
-			
 			if(oldVal != newVal)
 			{
-
 				if(newVal.length > 5)
 				{
 					$scope.discountedMessage = 'verifiying code...'
@@ -263,7 +259,8 @@ bookingController
 							$scope.discounted=false;
 							$('#total-amount-val').html('P '+$('#subtotal').val())
 							$('.coupon-discount').remove();
-						}else
+						}
+						else
 						{
 							$("<tr class='coupon-discount'><td colspan=4 style='text-align:right;font-weight:bold'>Coupon Discount </td><td style='text-align:right'>-"+data.discount.effect_str+"</td></tr>").insertBefore('#total-amount')
 							//$('#total-amount').prepend('<tr><td colspan=4>test</td><td>0</td>')
@@ -294,7 +291,6 @@ bookingController
 					$scope.discountedMessage = null;
 				}
 			}
-
 		})
 }])
 </script>
