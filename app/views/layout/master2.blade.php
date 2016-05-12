@@ -55,7 +55,7 @@
 		</div>
 	</div>
 	<div class='container-fluid'>
-		<div class="row" style='min-height:50px;'>
+		<div class="row">
 			<div class="row" style='background: url({{ URL::to("images/background/texture4.jpg") }});min-height:30px'>
 				<div class="container">
 					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding:0px'>
@@ -82,8 +82,8 @@
 						<li><a href="{{ URL::to('contact')}}">Contact</a></li>
 					</ul>
 				</div><!-- /.navbar-collapse -->
-			</div>
-		</nav>
+			</nav>
+		</div>
 		<nav class="navbar navbar-default visible-xs visible-sm" role="navigation">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div style='height:100px;width:100%;background:url({{ URL::to("images/background/texture2.png") }}) black;padding-left:20px;padding-top:0px;-webkit-box-shadow: 0px 3px 18px -1px rgba(0,0,0,0.75);
@@ -142,16 +142,14 @@
 									<div class="row">
 										<form action='{{ URL::to("booking/step1") }}' method='POST'>
 											<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-												<input type='text' class='form-control checkin' placeholder='Your Check-in Date' ng-model='availability.checkin' ng-value='availability.checkin' name='checkin' required>
+												<input type='text' class='form-control checkin' placeholder='Your Check-in Date' value="{{ date('Y-m-d')}}" name='checkin' required>
 											</div>
 											<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" >
-												<input type='text' class='form-control' ng-model='nights' placeholder='Number of nights' maxlength='2' name='nights' required valid-number>
+												<input type='text' class='form-control checkout' placeholder='Your Check-out Date' value="{{ date('Y-m-d', strtotime('+1 day'))}}" name='checkout' required>
 											</div>
 											<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 												<button type="submit" class="btn btn-large btn-block btn-danger">Check Room Availability</button>
 											</div>
-											<input type='hidden' name='checkout' ng-value='availability.checkout'>
-											<input type='hidden' name='display_checkout' ng-value='availability.display_checkout'>
 										</form>
 									</div>
 								<!--
@@ -183,7 +181,6 @@
 					<script>
 						$(function () {
 							$("#slider4").responsiveSlides({
-								
 								maxwidth: 960,
 								pager: false,
 								//nav: true,
@@ -205,7 +202,6 @@
 							{
 								$('.loadingIndicator').fadeOut();
 							},500)
-							
 						});
 					</script>
 				</body>
