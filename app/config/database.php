@@ -55,9 +55,9 @@ return array(
 		'mysql' => array(
 			'driver'    => 'mysql',
 			'host'      => 'localhost',
-			'database'  => 'hotel',
+			'database'  => 'filigans',
 			'username'  => 'root',
-			'password'  => 'pythos2014',
+			'password'  => 'p@55w0rd',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
