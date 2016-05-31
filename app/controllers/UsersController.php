@@ -71,10 +71,6 @@ class UsersController extends \BaseController {
 		2 - wrong password
 		3 - password mismatch
 		*/
-
-
-
-
 		$i = Input::all();
 		if (Hash::check($i['password'], Auth::user()->password)){
 			if($i['newPassword'] == $i['confirmPassword']){
