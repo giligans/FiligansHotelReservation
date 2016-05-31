@@ -399,36 +399,16 @@ $scope.displayform=true; //this is for the first form
 $scope.displayform2=false; //this is for the second form
 $scope.displayform3 = false;
 $scope.availability = {
+	room_id : 0,
 	checkin : moment().format('YYYY[-]MM[-]DD'),
 	checkout :  moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
 	display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
 }
-$scope.nights=1;  $scope.quantity = 1; $scope.availability.room_id = 0;
-$scope.$watch('availability.checkin', function(newVal, oldVal){
-	if($scope.nights>1){
-		$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-		$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-	}else if($scope.nights==1){
-		$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-		$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-	}
-});
-$scope.$watch('nights', function(newVal, oldVal){
-	if(newVal<1){
-		$scope.nights=1;
-	}
-	if(newVal>1){
-		$scope.availability.checkout =moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
-		$scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
-		console.log($scope.availability.display_checkout);
-	}else if(newVal==1){
-		$scope.availability.checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
-		$scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
-	}
-// console.log($scope.availability.checkout)
-})
 
-$('#newBooking').modal('show');
+$('#newBooking').modal({
+	backdrop: 'static',
+	keyboard: true
+});
 }
 $scope.addMoreRoom = function()
 {
@@ -555,35 +535,46 @@ $scope.error = 1; //means something went wrong. probably network issues.
 $scope.checkAvailability = function(){
 	$scope.displayform = false;
 	$scope.reservation = null;
-	if($scope.availability.room_id!=0){
-		$scope.loading = true;
-		bookingFactory.checkAvailability($scope.availability, $scope.quantity).success(function(data){
-			console.log(data, 'data');
-			if(data.status==1){
-				console.log(data);
-				$scope.reservation = angular.copy(data);
-				$scope.reservation.info = {
-					room_id : $scope.availability.room_id,
-					quantity : $scope.availability.quantity,
-				}
-				$timeout(function(){
-					$scope.displayform = true;
-					$scope.loading=false;
-					$scope.available = 1;
-				}, 1000)
-			}else{
-				$timeout(function(){
-					$scope.displayform = true;
-					$scope.loading=false;
-					$scope.available = 0;
-				}, 1000)
-			}
-		}).error();
-	}else{
+	
+	if( !moment($scope.availability.checkin, 'YYYY-MM-DD').isValid()|| !moment($scope.availability.checkout, 'YYYY-MM-DD').isValid() || !$scope.quantity)
+	{
+
 		$scope.available = null;
 		$scope.displayform=true;
 		$scope.displayform2=false;
-		alert('Select a room type first!')
+		alert('Please fill in all of the fields!')
+	}else{
+		console.log($scope.availability)
+		if($scope.availability.room_id!=0){
+			$scope.loading = true;
+			bookingFactory.checkAvailability($scope.availability, $scope.quantity).success(function(data){
+				console.log(data, 'data');
+				if(data.status==1){
+					console.log(data);
+					$scope.reservation = angular.copy(data);
+					$scope.reservation.info = {
+						room_id : $scope.availability.room_id,
+						quantity : $scope.availability.quantity,
+					}
+					$timeout(function(){
+						$scope.displayform = true;
+						$scope.loading=false;
+						$scope.available = 1;
+					}, 1000)
+				}else{
+					$timeout(function(){
+						$scope.displayform = true;
+						$scope.loading=false;
+						$scope.available = 0;
+					}, 1000)
+				}
+			}).error();
+		}else{
+			$scope.available = null;
+			$scope.displayform=true;
+			$scope.displayform2=false;
+			alert('Select a room type first!')
+		}
 	}
 }
 }]).filter('reverse', function() {

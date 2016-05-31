@@ -88,14 +88,16 @@ homeController
 			Palawan.
 		</p>
 	</div>
-
-
-	
 </div>
 @stop
 @section('scripts')
 <script type="text/javascript">
 	$('.checkin').datepicker({
+		format: 'yyyy-mm-dd',
+		startDate: '0d'
+	})
+
+	$('.checkout').datepicker({
 		format: 'yyyy-mm-dd',
 		startDate: '0d'
 	})
@@ -106,40 +108,8 @@ homeController
 		$interpolateProvider.startSymbol('[[');
 		$interpolateProvider.endSymbol(']]');
 	}).controller('homeController', ['$scope', function($scope){
-		$scope.availability = {
-			checkin : null,
-			checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD'),
-			display_checkout : moment().add(1, 'days').format('YYYY[-]MM[-]DD')
-		}
-		$scope.nights=null;
-		$scope.$watch('availability.checkin', function(newVal, oldVal){
-			if($scope.nights>1){
-				$scope.availability.checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.display_checkout = moment(newVal).add($scope.nights, 'days').format('YYYY[-]MM[-]DD');
+		//removed as of May 12, 2016
 
-			}else if($scope.nights==1){
-				$scope.availability.display_checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.checkout = moment(newVal).add(1, 'days').format('YYYY[-]MM[-]DD');
-
-			}
-
-		});
-		$scope.$watch('nights', function(newVal, oldVal){
-			if(newVal<1){
-				$scope.nights=1;
-			}
-			if(newVal>1){
-				$scope.availability.checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.display_checkout = moment($scope.availability.checkin).add(newVal, 'days').format('YYYY[-]MM[-]DD');
-				console.log($scope.availability.display_checkout);
-
-			}else if(newVal==1){
-				$scope.availability.checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
-				$scope.availability.display_checkout = moment($scope.availability.checkin).add(1, 'days').format('YYYY[-]MM[-]DD');
-
-			}
-   // console.log($scope.availability.checkout)
-})
 	}]).directive('validNumber', function() {
 
 		return {
